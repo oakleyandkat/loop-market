@@ -656,6 +656,65 @@ S.plants=(x,w,h)=>{const g=G(x);
       for(let k=0;k<7;k++)g.E(px+(r()-.5)*40,y-62-r()*40,10+r()*6,24+r()*12,["#2d6a4f","#40916c","#52b788"][k%3],(r()-.5)*1.6);
       g.P([px-pw/2,y-46,px+pw/2,y-46,px+pw/2-8,y,px-pw/2+8,y],col)}}
 };
+S.dance=(x,w,h,t,L)=>{const g=G(x);
+  g.R(0,0,w,h,0,g.lin(0,0,0,h,["#2b1f4a","#4a2a6a"]));
+  for(let i=0;i<4;i++)g.R(i*w/4+6,h*.08,w/4-12,h*.6,4,"rgba(200,220,255,.12)");
+  ["#ff5d8f","#7d8cff","#ffd166"].forEach((c,i)=>{x.globalAlpha=.16+.1*Math.sin(t*3+i);const sw=Math.sin(t*1.5+i)*40;g.P([w*(.2+.3*i),0,w*(.05+.3*i)+sw,h*.8,w*(.35+.3*i)+sw,h*.8],c);x.globalAlpha=1});
+  g.L(w*.5,0,w*.5,h*.05,"#999",2);g.C(w*.5,h*.08,22,"#cfd3da");for(let i=0;i<10;i++)g.R(w*.5-18+(i%5)*8,h*.08-12+Math.floor(i/5)*12,6,6,1,(i+Math.floor(t*4))%2?"#fff":"#9aa5b1");
+  g.R(0,h*.78,w,h*.22,0,"#b07a4a");for(let i=0;i<9;i++)g.L(i*w/7,h*.78,i*w/7-50,h,"rgba(0,0,0,.15)",2);
+  const sway=Math.sin(t*4)*w*.08,bob=Math.abs(Math.sin(t*8))*14;
+  x.save();x.translate(w*.5+sway,h*.36-bob);x.rotate(Math.sin(t*4)*.07);person(x,0,0,1.7,L,{mouth:talk(t)*.6,blink:blink(t)});x.restore();
+  for(let i=0;i<14;i++){x.globalAlpha=.5+.5*Math.sin(t*5+i);g.C((i*73+t*30)%w,(i*131)%(h*.7),2.5,"#fff");x.globalAlpha=1}
+};
+function soccerKid(x,sx,gy,L,t){const g=G(x),run=Math.sin(t*12)*12;
+  g.L(sx-6,gy-50,sx-10+run,gy,"#1d3557",9);g.L(sx+6,gy-50,sx+10-run,gy,"#1d3557",9);g.C(sx-10+run,gy,6,"#111");g.C(sx+10-run,gy,6,"#111");
+  g.L(sx,gy-50,sx+2,gy-98,L.shirt,24);g.L(sx-6,gy-90,sx-30,gy-70-run*.5,L.shirt,9);g.L(sx+8,gy-90,sx+32,gy-72+run*.5,L.shirt,9);g.C(sx-31,gy-69-run*.5,5,L.skin);g.C(sx+33,gy-71+run*.5,5,L.skin);
+  g.C(sx+2,gy-116,16,L.skin);x.beginPath();x.ellipse(sx+2,gy-121,17,14,0,Math.PI,TAU);x.fillStyle=L.hair;x.fill()}
+S.soccer=(x,w,h,t,L)=>{const g=G(x);
+  g.R(0,0,w,h,0,g.lin(0,0,0,h*.5,["#7cc4ff","#cfeaff"]));
+  g.R(0,h*.3,w,h*.12,0,"#5c677d");for(let i=0;i<44;i++)g.C((i*37)%w,h*.33+(i%3)*12+Math.sin(t*6+i)*2,5,["#e63946","#ffd166","#fff","#118ab2"][i%4]);
+  g.R(0,h*.42,w,h*.58,0,"#4caf50");for(let i=0;i<6;i++)g.R(0,h*.42+i*h*.1,w,h*.05,0,"rgba(255,255,255,.06)");g.L(0,h*.62,w,h*.62,"rgba(255,255,255,.7)",3);
+  const gx=w*.66,gy=h*.46,gw=w*.3,gh=h*.16;g.R(gx,gy,gw,gh,0,"rgba(255,255,255,.12)");x.lineWidth=1;x.strokeStyle="rgba(255,255,255,.5)";
+  for(let i=1;i<8;i++){x.beginPath();x.moveTo(gx+i*gw/8,gy);x.lineTo(gx+i*gw/8,gy+gh);x.stroke()}for(let j=1;j<5;j++){x.beginPath();x.moveTo(gx,gy+j*gh/5);x.lineTo(gx+gw,gy+j*gh/5);x.stroke()}
+  x.strokeStyle="#fff";x.lineWidth=5;x.strokeRect(gx,gy,gw,gh);
+  const ph=(t%4)/4,kx=w*.18+Math.min(ph,.5)*w*.2,ky=h*.82;soccerKid(x,kx,ky,L,t);
+  let bx,by;if(ph<.5){bx=kx+28+Math.sin(t*10)*4;by=ky-8}else{const k=(ph-.5)/.5,tx=gx+gw*.5,ty=gy+gh*.5;bx=kx+28+k*(tx-kx-28);by=(ky-8)+k*(ty-ky+8)-Math.sin(k*Math.PI)*h*.18}
+  g.C(bx,by,11,"#fff");g.C(bx-3,by-2,4,"#222");g.C(bx+5,by+3,3,"#222");
+  if(ph>.9)g.T("GOAL!",w*.5,h*.2,"#fff","800 52px system-ui");
+};
+S.books=(x,w,h,t,L)=>{const g=G(x);
+  g.R(0,0,w,h,0,"#f3e9dc");g.R(w*.04,h*.04,w*.92,h*.5,6,"#8b5e3c");const r=srand("books");
+  for(let row=0;row<3;row++){const y=h*.06+row*h*.16;g.R(w*.06,y+h*.14,w*.88,8,2,"#6f4a2f");let bx=w*.07;while(bx<w*.9){const bw=12+r()*14,bh=h*.1+r()*h*.035;g.R(bx,y+h*.14-bh,bw,bh,2,`hsl(${Math.floor(r()*360)} 45% ${45+r()*20}%)`);bx+=bw+2}}
+  x.globalAlpha=.25;g.C(w*.88,h*.62,90,"#ffd27a");x.globalAlpha=1;g.R(0,h*.82,w,h*.18,0,"#c9a27e");
+  person(x,w*.5,h*.42,1.7,L,{mouth:talk(t)*.8,blink:blink(t)});
+  x.save();x.translate(w*.5,h*.42+92);x.rotate(-.05);g.R(-80,-10,160,95,6,"#3d405b");g.R(-74,-6,72,86,3,"#fffaf0");g.R(2,-6,72,86,3,"#fffaf0");
+  for(let i=0;i<6;i++){g.L(-66,6+i*12,-12,6+i*12,"#ccc",2);g.L(10,6+i*12,64,6+i*12,"#ccc",2)}
+  const f=(t%3)/3;if(f<.3){x.save();x.scale(1-f/.3*2,1);g.R(2,-6,72,86,3,"#f5ecd9");x.restore()}
+  g.C(-84,42,13,L.skin);g.C(84,42,13,L.skin);x.restore();
+  g.R(w*.8,h*.74,40,46,8,"#e07a5f");for(let i=0;i<3;i++){const k=(t*20+i*20)%60;x.globalAlpha=Math.max(0,.5-k/120);g.C(w*.8+20+Math.sin(t*2+i)*5,h*.74-k,8,"#fff");x.globalAlpha=1}
+};
+S.science=(x,w,h,t,L)=>{const g=G(x);
+  g.R(0,0,w,h,0,"#e8f4f8");g.R(w*.05,h*.07,w*.26,h*.18,4,"#fff");g.C(w*.18,h*.16,22,"#ffd166");
+  for(let i=0;i<3;i++){x.beginPath();x.ellipse(w*.18,h*.16,44,12,i*1.05,0,TAU);x.strokeStyle="#118ab2";x.lineWidth=2;x.stroke()}
+  g.R(w*.71,h*.07,w*.24,h*.18,4,"#fff");g.T("H2O",w*.83,h*.16,"#06d6a0","800 34px system-ui");
+  const cx=w*.5,cy=h*.36,gs=1.6;person(x,cx,cy,gs,L,{mouth:talk(t),blink:blink(t)});
+  x.strokeStyle="#2f4bff";x.lineWidth=4;x.fillStyle="rgba(180,230,255,.35)";[-1,1].forEach(d=>{x.beginPath();x.ellipse(cx+d*11*gs,cy-2*gs,10*gs,8*gs,0,0,TAU);x.fill();x.stroke()});
+  x.beginPath();x.moveTo(cx-21*gs,cy-2*gs);x.lineTo(cx-28*gs,cy-5*gs);x.moveTo(cx+21*gs,cy-2*gs);x.lineTo(cx+28*gs,cy-5*gs);x.moveTo(cx-1*gs,cy-2*gs);x.lineTo(cx+1*gs,cy-2*gs);x.stroke();
+  g.R(0,h*.66,w,h*.34,0,"#dfe6e9");g.R(0,h*.66,w,10,0,"#b2bec3");
+  const bx=w*.64,by=h*.66,c=`hsl(${Math.floor(t*60)%360} 80% 60%)`;
+  g.P([bx-40,by-110,bx+40,by-110,bx+60,by,bx-60,by],"rgba(255,255,255,.6)");g.R(bx-14,by-150,28,44,4,"rgba(255,255,255,.6)");g.P([bx-30,by-70,bx+30,by-70,bx+54,by-4,bx-54,by-4],c);
+  const er=Math.max(0,Math.sin((t%4)/4*Math.PI));for(let i=0;i<16;i++){const k=((t*40+i*17)%140)*er;g.C(bx+Math.sin(i*2+t*3)*14,by-150-k,10+(i*7)%8,c)}
+  for(let i=0;i<8;i++){const k=(t*50+i*30)%110;x.globalAlpha=.7;g.C(bx-30+(i*9)%60,by-10-k*.5,4,"#fff");x.globalAlpha=1}
+  ["#ef476f","#ffd166","#06d6a0"].forEach((cc,i)=>{g.R(w*.1+i*28,by-80,16,70,8,"rgba(255,255,255,.7)");g.R(w*.1+i*28,by-40,16,30,8,cc)});
+};
+S.fashion=(x,w,h,t,L)=>{const g=G(x);
+  g.R(0,0,w,h,0,"#fbe7e3");g.R(w*.66,h*.06,w*.28,h*.6,60,"#d4a373");g.R(w*.68,h*.08,w*.24,h*.56,52,"#e3f2fd");x.globalAlpha=.4;g.L(w*.72,h*.15,w*.8,h*.3,"#fff",6);x.globalAlpha=1;
+  g.L(w*.04,h*.12,w*.42,h*.12,"#888",5);g.L(w*.06,h*.12,w*.06,h*.62,"#888",4);g.L(w*.4,h*.12,w*.4,h*.62,"#888",4);
+  ["#e76f51","#2a9d8f","#e9c46a","#264653","#ff8fab"].forEach((c,i)=>{const hx=w*.09+i*w*.065,sw=Math.sin(t*2+i)*4;g.A(hx,h*.13,6,Math.PI,TAU,"#555",2);g.P([hx-20+sw,h*.15,hx+20+sw,h*.15,hx+26+sw,h*.38,hx-26+sw,h*.38],c)});
+  g.R(0,h*.8,w,h*.2,0,"#e0c3b9");
+  const fits=["#e76f51","#2a9d8f","#e9c46a","#ff8fab"],k=Math.floor((t%8)/2);person(x,w*.44,h*.38,1.85,Object.assign({},L,{shirt:fits[k]}),{mouth:talk(t),blink:blink(t)});
+  if((t%2)<.1){x.globalAlpha=.6;g.R(0,0,w,h,0,"#fff");x.globalAlpha=1}
+};
 const SCENES=S;
 
 /* ---------- products ---------- */
@@ -776,13 +835,109 @@ const USERS=[
  {h:"nate.eats",n:"Nate Brooks",bio:"I rate food so you don't have to.",followers:33800,look:{skin:"#e8b98f",style:"curly",hair:"#8b4a1f",shirt:"#264653",glasses:true,bg:"#cfe8e4"}},
  {h:"ava.draws",n:"Ava Moreno",bio:"Painter. Plant mom. Speedpaints on Sundays.",followers:128000,look:{skin:"#d9a07a",style:"puffs",hair:"#3b2314",shirt:"#2a9d8f",glasses:false,bg:"#d0f0ec"}},
  {h:"kofi.and.biscuit",n:"Kofi Mensah",bio:"Biscuit is the star. I just hold the camera.",followers:298000,look:{skin:"#5a3825",style:"short",hair:"#120c08",shirt:"#e9c46a",glasses:false,bg:"#fff1c4"}},
- {h:"zoe.vlogs",n:"Zoe Kim",bio:"Day in my life, outfit checks, and storytimes.",followers:560000,look:{skin:"#f0cfae",style:"long",hair:"#c88b4a",shirt:"#c77dff",glasses:false,bg:"#f1dcff"}}
+ {h:"zoe.vlogs",n:"Zoe Kim",bio:"Day in my life, outfit checks, and storytimes.",followers:560000,look:{skin:"#f0cfae",style:"long",hair:"#c88b4a",shirt:"#c77dff",glasses:false,bg:"#f1dcff"}},
+ {h:"mia.dances",n:"Mia Lopez",bio:"Dance covers and choreography. Learn it with me!",followers:345000,look:{skin:"#d9a07a",style:"bun",hair:"#2b1a12",shirt:"#ff5d8f",glasses:false,bg:"#ffd6e6"}},
+ {h:"theo.kicks",n:"Theo Grant",bio:"Soccer every day. Trick shots on Fridays.",followers:61000,look:{skin:"#8d5a3b",style:"short",hair:"#1a120c",shirt:"#e63946",glasses:false,bg:"#d8f3dc"}},
+ {h:"june.reads",n:"June Park",bio:"Cozy books, tea, and honest reviews.",followers:88000,look:{skin:"#f3d2b3",style:"long",hair:"#151515",shirt:"#9b5de5",glasses:true,bg:"#ece4ff"}},
+ {h:"leo.labs",n:"Leo Santos",bio:"Safe at-home science experiments. Ask a grown-up first!",followers:152000,look:{skin:"#c68a5e",style:"curly",hair:"#2b1a12",shirt:"#00a6a6",glasses:false,bg:"#d7f3f3"}},
+ {h:"nina.thrifts",n:"Nina Ali",bio:"Thrift flips and outfit ideas on a budget.",followers:207000,look:{skin:"#a8714b",style:"puffs",hair:"#1a120c",shirt:"#f4a261",glasses:false,bg:"#ffe8d1"}}
 ];
 const U=h=>USERS.find(u=>u.h===h);
 USERS.forEach(u=>u.verified=u.followers>=100000);
 const vf=u=>u&&u.verified?`<svg class="vf" viewBox="0 0 24 24" role="img" aria-label="Verified"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`:"";
 const OPENERS={"maya.cooks":"hey! did you try the garlic pasta yet?","jay.plays":"thanks for watching my song!!","zoe.vlogs":"omg I love your profile pic","dex.games":"you coming to the stream tonight?","kofi.and.biscuit":"Biscuit says hi"};
-function seedChats(){const now=Date.now(),c={};Object.entries(OPENERS).forEach(([h,m],i)=>c[h]={msgs:[{from:h,t:m,time:now-(i+1)*3*36e5}],unread:true});return c}
+function seedChats(){const now=Date.now(),c={};Object.entries(OPENERS).forEach(([h,m],i)=>c[h]={msgs:[{from:h,t:m,time:now-(i+1)*3*36e5}],unread:true,lastQ:{"maya.cooks":"tried","dex.games":"stream","jay.plays":"thanks","zoe.vlogs":"pfp","kofi.and.biscuit":"biscuithi"}[h]||null});return c}
+const PERSONA={
+ "maya.cooks":{topic:"cooking",fav:"the garlic butter pasta",doing:["prepping dinner","testing a new taco recipe","washing like a million dishes"],next:"a 15-minute fried rice video",tip:"cook the garlic on low heat so it doesn't burn, that's the whole secret"},
+ "jay.plays":{topic:"music",fav:"Late Bus, the song I'm writing",doing:["practicing for Friday","writing a new verse","changing my guitar strings"],next:"the full version of Late Bus",tip:"practice the chord changes really slowly first, then speed up"},
+ "skatewithsam":{topic:"skating",fav:"kickflips, even though I fall a lot",doing:["at the skatepark","fixing my board","icing my wrist lol"],next:"a kickflip tutorial",tip:"keep your shoulders straight and pop hard with your back foot"},
+ "lulu.bakes":{topic:"baking",fav:"the strawberry cake",doing:["waiting for cookies to cool","making frosting","cleaning flour off everything"],next:"a rainbow layer cake",tip:"always let the cake cool all the way before you frost it"},
+ "dex.games":{topic:"gaming",fav:"speedruns",doing:["practicing the hard jump","setting up the stream","eating snacks before stream"],next:"a no-death 100% run",tip:"learn one section at a time, then put it all together"},
+ "priya.travels":{topic:"road trips",fav:"the mountain pass drive",doing:["driving to the lake","packing the van","editing the road trip video"],next:"the coast highway vlog",tip:"bring way more snacks than you think you need"},
+ "nate.eats":{topic:"food",fav:"the ramen place downtown",doing:["looking for the next food spot","eating pizza, obviously","updating my food rankings"],next:"a pizza ranking video",tip:"always try the house special first"},
+ "ava.draws":{topic:"painting",fav:"sunset paintings",doing:["painting the sky","watering my plants","cleaning my brushes"],next:"a speedpaint of a beach",tip:"start with the light colors and slowly go darker"},
+ "kofi.and.biscuit":{topic:"Biscuit",fav:"playing fetch with Biscuit",doing:["at the park with Biscuit","giving Biscuit a bath (he hates it)","trying to get my sock back from Biscuit"],next:"Biscuit's first beach trip",tip:"lots of treats and lots of patience"},
+ "mia.dances":{topic:"dance",fav:"the spin combo",doing:["learning a new dance","stretching","filming a dance challenge"],next:"a dance tutorial",tip:"learn it slowly in the mirror first, then add the music"},
+ "theo.kicks":{topic:"soccer",fav:"trick shots",doing:["at practice","juggling the ball","watching a game"],next:"a crossbar challenge",tip:"practice with your weaker foot every day"},
+ "june.reads":{topic:"books",fav:"cozy mystery books",doing:["reading in bed","making tea","organizing my bookshelf"],next:"my top 5 books of the month",tip:"read a little every night, even just 10 pages"},
+ "leo.labs":{topic:"science",fav:"the volcano experiment",doing:["setting up an experiment","cleaning up slime lol","reading about space"],next:"elephant toothpaste",tip:"always do experiments with a grown-up and wear goggles"},
+ "nina.thrifts":{topic:"thrifting",fav:"thrift flips",doing:["at the thrift store","sewing a jacket","planning outfits"],next:"a big thrift haul",tip:"check every rack, the best stuff is always hiding"},
+ "zoe.vlogs":{topic:"vlogs",fav:"storytimes",doing:["filming a get ready with me","redoing my room","editing tomorrow's vlog"],next:"a room makeover video",tip:"just start filming, you get better with every video"}};
+const pickR=a=>a[Math.floor(Math.random()*a.length)];
+function botReply(h,raw,c){
+  const P=PERSONA[h]||{topic:"posting",fav:"my last video",doing:["just chilling"],next:"something fun",tip:"just have fun with it"};
+  const t=raw.toLowerCase().replace(/[’]/g,"'").trim(),has=r=>r.test(t),q=c&&c.lastQ;const nm=S.me.n&&S.me.n!=="You"?" "+S.me.n.split(" ")[0]:"";
+  const yes=has(/^(yes|yeah|yea|yep|yup|ya|ye|sure|of course|definitely|totally|i did|i will|i am|i'm coming|ok|okay|ofc)\b/),no=has(/^(no|nope|nah|not yet|i didn't|i can't|can't|cant|i won't)\b/);
+  let r=null,nq=null;
+  if(has(/\b(bye|byee+|gtg|got to go|good ?night|gn|cya|ttyl|see you later)\b/))r=pickR(["bye!! talk soon","byee, have a good night!","see you! thanks for chatting"]);
+  else if(q==="tried"&&(yes||no)){r=yes?"yay!! how did it turn out?":"you have to try it! it only takes like 10 minutes, I promise";nq=yes?"howturn":null}
+  else if(q==="howturn"&&t)r=has(/bad|burn|fail|gross|not good|messed/)?"oh no lol, that happens to me all the time. try lower heat next time!":"that makes me so happy!! send me a pic next time you make it";
+  else if(q==="stream"&&(yes||no))r=yes?"let's gooo, see you at 7! say hi in the chat":"no worries! I'll post the best parts tomorrow";
+  else if(q==="thanks"&&has(/welcome|no problem|np|of course|anytime|love|good|great|amazing|cool|nice/))r=has(/love|good|great|amazing|cool|nice/)?"wait really?? that means so much. I'm finishing it this week":"you're the best!";
+  else if(q==="pfp"&&has(/thank|ty|thx|aw/))r="of course! did you make it yourself?";
+  else if(q==="biscuithi"&&has(/hi|hey|hello|biscuit|cute|aw/))r="he's wagging his tail so hard right now lol";
+  else if(q==="howareyou"&&has(/good|great|fine|ok|okay|amazing|not bad|alright|awesome|tired|bored|sad|bad|meh/))r=has(/sad|bad|tired|bored|meh/)?"aw, hope your day gets better. watching funny videos always helps me":"glad to hear it! anything fun happening today?";
+  else if(q==="fav"&&t.length>1&&!has(/\?/))r="good choice!! that one was really fun to make";
+  else if(q==="whatsup"&&t.length>1&&!has(/\?/))r=pickR(["that sounds fun!","nice!! I love that","ooh tell me how it goes"]);
+  if(!r){
+    if(has(/how old|your age|what grade|are you \d+/))r="haha I keep that stuff private online, but thanks for asking!";
+    else if(has(/address|where do you live|phone|your number|snapchat|\bsnap\b|meet up|meet you|hang out|in person|irl/))r="I keep stuff like that private, but I love chatting on here!";
+    else if(has(/^(hi+|hey+|hello|sup|yo|wassup|what's up|whats up|heyo)\b/)){r=pickR([`hey${nm}!! how are you?`,`hiii${nm}! how's your day going?`]);nq="howareyou"}
+    else if(has(/how are you|how r u|how's it going|hows it going|how you doing|how are u/)){r=`I'm good! ${pickR(P.doing)} right now. how about you?`;nq="howareyou"}
+    else if(has(/what are you doing|wyd|what r u doing|what you up to|what are you up to|whatcha doing/)){r=`${pickR(P.doing)} lol. what about you?`;nq="whatsup"}
+    else if(has(/thank|thx|\bty\b|tysm/))r=pickR(["of course!!","anytime!","you're welcome!"]);
+    else if(has(/how do you|how did you|how to|\btips?\b|teach me|advice|how can i|how do i/))r=`okay so, ${P.tip}`;
+    else if(has(/next|new video|when are you|upload|post again|part 2|part two/))r=`next up is ${P.next}! probably this week`;
+    else if(has(/favorite|favourite|\bfav\b/)){r=`my favorite is ${P.fav}. what's yours?`;nq="fav"}
+    else if(has(/where (are|r) you|where is that|where was|where'?s that|where did you/))r=`that was in ${(PROF[h]||{}).loc||"my town"}!`;
+    else if(has(/love|obsessed|amazing|awesome|so cool|\bcool\b|great|best|so good|fire|talented|fan|cute|pretty|beautiful|nice/)){r=pickR(["aww thank you so much!!","you're so sweet, thank you!!","omg thank you!!"])+" which video is your favorite?";nq="fav"}
+    else if(has(/lol|haha|lmao|hehe/))r=pickR(["haha right","lol stop","I'm laughing"]);
+    else if(has(/bye|gtg|got to go|good ?night|see you|cya|ttyl/))r="bye!! talk soon";
+    else if(has(/sorry/))r="no worries at all!";
+    else if(has(/biscuit|dog|puppy/)&&h==="kofi.and.biscuit")r="Biscuit is literally the best boy. he's sleeping on my feet right now";
+    else if(has(/\?$/))r=pickR(["good question! I might answer that in a video","hmm honestly I'm not sure! what do you think?","ooh I'll have to think about that one"]);
+    else r=pickR(["omg really? tell me more","that's so cool","wait that's awesome","haha I love that","no way!"]);
+  }
+  if(c&&r===c.lastBot)r=pickR(["haha yes","totally","that's so true"]);
+  return{text:r,q:nq};
+}
+const CB={
+ cooking:["making this for dinner tonight","what kind of pan is that?","the garlic part is so real","you make it look so easy","can you do a vegetarian version?","I tried this and my family loved it","how long does it take total?","that sizzle sound though"],
+ baking:["that cake is so pretty","what frosting do you use?","I need this recipe","can you do chocolate next?","these look perfect","how long do they bake for?","the sprinkles!!"],
+ music:["your voice is so calming","please finish this song!","the chorus is stuck in my head","what guitar is that?","play this at the open mic!","this deserves way more views","teach me those chords"],
+ gaming:["that jump was insane","how many tries did that take?","new record let's go","what controller do you use?","you're so fast","I can never get past that level","play my level next!"],
+ skate:["that ollie was clean!","how long did it take to learn?","those cones are so high","what board is that?","I fell just watching this","keep going, you got this","the sunset in the background though"],
+ travel:["where is this??","the mountains are beautiful","adding this to my bucket list","what snacks did you get?","safe travels!","how long is the drive?","the view is unreal"],
+ vlog:["your room is so cozy","where did you get those lights?","storytime part 2 please","I love your outfit","this made my morning","you're so funny","can you do a full room tour?"],
+ pets:["Biscuit is the cutest","he's so fast","what breed is he?","give him a treat from me","my dog does the same thing","the zoomies lol","good boy Biscuit"],
+ art:["this is beautiful","what paint do you use?","the sunset colors are perfect","can you sell this as a print?","teach me how to blend like that","you're so talented","I'd hang this in my room"],
+ food:["that looks so good","where is this place?","I'm so hungry now","what's on it?","rate it out of 10","I need to try this","saving this for later"],
+ plants:["your plants are thriving","which one is your favorite?","how often do you water them?","plant goals","my plants could never","so many plants omg"],
+ setup:["clean setup","what keyboard is that?","the lights are so nice","10/10 setup","how do you hide the cables?","I want this desk"],
+ sunset:["this is gorgeous","where was this taken?","golden hour is the best","wallpaper material","the colors!!","so peaceful"],
+ dance:["the moves are so smooth","teach me this!","I tried it and fell lol","that spin at the end!!","do a tutorial please","your energy is everything"],
+ soccer:["what a shot!","how are you so good","that was clean","do you play for a team?","teach me that move","GOAL!!"],
+ books:["adding this to my list","no spoilers please!","what's the book called?","I love cozy reading nights","what tea is that?","five stars for sure"],
+ science:["I'm trying this tomorrow","so cool!!","why does it change color?","doing this with my dad","my volcano failed lol","do elephant toothpaste next"],
+ fashion:["that fit is so cute","where did you thrift it?","three dollars?? no way","the second look for sure","you have the best style","do a thrift haul next"]};
+function textComments(p){const t=p.text.toLowerCase();
+  if(/cook/.test(t))return["tacos!!","lasagna please","something with noodles","breakfast for dinner"];
+  if(/song|cover/.test(t))return["something acoustic!","a slow version of a pop song","an old classic","your own song!!"];
+  if(/open mic|nervous/.test(t))return["you're going to do great!","good luck!!","you've got this","wish I could be there"];
+  if(/skat/.test(t))return["I'm in!","see you there","bringing my board","what time?"];
+  if(/wrist/.test(t))return["glad you're okay!","take it easy","you're so tough"];
+  if(/speedrun|game|live/.test(t))return["I'll be there","the hardest level!","a racing game","can't wait"];
+  if(/drive|where/.test(t))return["the beach!!","national parks","somewhere with mountains","the desert at night"];
+  if(/biscuit|sock/.test(t))return["happy birthday Biscuit!!","give him a treat from me","he's so cute","lol classic Biscuit"];
+  if(/strings/.test(t))return["what kind?","new strings sound so good","can't wait to hear it"];
+  if(/print|cake order|review|q&a|ask/.test(t))return["I want one!","yes please","finally!","what's your favorite color?"];
+  return["love this","so true","congrats!!","let's go!"]}
+function cmtFor(p,r){r=r||Math.random;let b;if(p.kind==="text")b=textComments(p);else if(p.img)b=["great pic!","love this photo","where was this?","so pretty","such a good picture"];else b=CB[p.scene]||["love this","so cool"];return b[Math.floor(r()*b.length)]}
+function commentReply(p,v){const t=v.toLowerCase(),P=PERSONA[p.user]||{tip:"just have fun with it"},at="@"+S.me.h+" ";
+  if(/\?/.test(t)){if(/how|tip|teach/.test(t))return at+"okay so, "+P.tip;if(/where/.test(t))return at+"this was in "+((PROF[p.user]||{}).loc||"my town")+"!";if(/how long|how many/.test(t))return at+"honestly way longer than it looks lol";return at+"great question! I'll answer it in my next video"}
+  if(/love|cool|amazing|awesome|great|best|good|pretty|cute|fire|talented|nice|beautiful|wow|omg/.test(t))return at+pickR(["thank you so much!!","aww thank you!","you're the sweetest"]);
+  if(/lol|haha|lmao/.test(t))return at+"haha right";
+  return at+pickR(["thanks for watching!!","haha thank you","appreciate you!"])}
 const REPLIES=["haha yes!!","no way, that's so cool","omg same","wait really?","thank you!! that means a lot","I'm posting a new one tomorrow","lol you're so funny","okay but you have to try it","tell me everything","yesss","that's the best thing I've heard all day","hold on, sending you a pic later"];
 
 /* ---------- seeded posts ---------- */
@@ -819,7 +974,7 @@ const SEED=[
  ["skatewithsam",null,"t","Who wants to skate Saturday morning? Meet at the park at 10.",null,null]
 ];
 const CMTS=["this is so cool","need this asap","where did you get that??","okay this made my day","10/10 no notes","the colors though","I have the same one!","teach me please","my cat would destroy that","this deserves more likes","wait how did you do that","saving this for later","part 2 please","the way I screamed","obsessed"];
-const TOPIC={cooking:"Food",baking:"Food",food:"Food",music:"Music",vlog:"Vlogs",travel:"Travel",sunset:"Travel",gaming:"Gaming",setup:"Gaming",skate:"Sports",pets:"Pets",art:"Art",plants:"Art"};
+const TOPIC={cooking:"Food",baking:"Food",food:"Food",music:"Music",vlog:"Vlogs",travel:"Travel",sunset:"Travel",gaming:"Gaming",setup:"Gaming",skate:"Sports",pets:"Pets",art:"Art",plants:"Art",dance:"Dance",soccer:"Sports",books:"Books",science:"Science",fashion:"Fashion"};
 function seedPosts(){
   seed=99;const now=Date.now();
   return SEED.map((s,i)=>{const [user,sc,k,text,caps,noun]=s;const [scene,variant]=(sc||"").split(":");
@@ -837,7 +992,31 @@ const CAPS={
  travel:[["road trip day","the views are unreal","snack stop next","almost at camp"],["driving the coast","windows down","sunset soon","best day ever"],["early start","coffee in hand","mountains ahead","see you at the top"]],
  vlog:[["morning routine","making my bed first","outfit check","let's go"],["storytime","so this happened","I could not stop laughing","comment if this happened to you"],["room tour part two","my favorite corner","new fairy lights","what should I add next"],["what I got today","this was on sale","I'm obsessed with it","it's in my shop"]],
  pets:[["park day","he saw the ball","zoomies","good boy"],["training update","sit","stay","treat time"],["he found a new friend","they're racing","so fast","nap time"]],
- art:[["speedpaint","sky first","now the sun","finished"],["painting from memory","blending the clouds","adding warm colors","signed it"],["art class homework","base layer","details","done"]]};
+ art:[["speedpaint","sky first","now the sun","finished"],["painting from memory","blending the clouds","adding warm colors","signed it"],["art class homework","base layer","details","done"]],
+ dance:[["learn this with me","step, step, turn","now the arms","from the top!"],["new dance challenge","this part is hard","almost got it","nailed it"],["freestyle Friday","just vibing","spin!","okay that was fun"]],
+ soccer:[["trick shot attempt","lining it up","here goes","goal!"],["practice day","dribbling drills","left foot only","so tired lol"],["can I hit the crossbar?","so close","one more","yes!!"]],
+ books:[["what I'm reading","this one is so good","no spoilers","five stars"],["cozy reading night","tea is ready","just one more chapter","okay maybe two"],["book haul","look at this cover","starting it tonight","it's in my shop"]],
+ science:[["volcano time","baking soda first","now the vinegar","it's erupting!"],["slime experiment","add the glue","mix mix mix","it worked!"],["color changing water","watch closely","it turned purple","science is so cool"]],
+ fashion:[["thrift flip","found this for three dollars","quick changes","new fit!"],["outfit ideas","look number one","look number two","which one is your favorite?"],["get ready with me","picking the top","switching it up","done!"]]};
+const FOODV=["pizza","salad","ramen","pancakes","pasta"];
+const EXTRA=[["vlog","video",null,["Day in my life","Come with me to the mall","Sunday reset","Answering your questions","Get ready with me for a party"]],
+ ["travel","video",null,["Weekend road trip with friends","Driving to the beach","Family trip vlog"]],
+ ["art","video",null,["Trying to paint for the first time","Painting with Ava!"]],
+ ["baking","video",null,["I tried baking a cake...","Cookies with my little sister"]],
+ ["skate","video",null,["Sam taught me to skate!","First time on a skateboard"]],
+ ["pets","video",null,["My neighbor's dog is so cute","Dog sitting for the weekend"]],
+ ["gaming","video",null,["Trying Dex's favorite game","Gaming night with friends"]],
+ ["music","video",null,["Learning guitar, day 1","Jay taught me a song"]],
+ ["dance","video",null,["Learning the new dance","Dance challenge with friends"]],
+ ["soccer","video",null,["Kicking the ball around at the park","Trying trick shots with Theo"]],
+ ["books","video",null,["What I'm reading this week","Book haul"]],
+ ["science","video",null,["Volcano experiment at home","Making slime with Leo"]],
+ ["fashion","video",null,["Outfit check","Thrifting with Nina"]],
+ ["cooking","video",null,["Cooking dinner for my family","Trying Maya's pasta recipe"]],
+ ["sunset","photo",null,["Sunset from my window","Golden hour walk","Beach day"]],
+ ["food","photo","*",["Lunch break","Dinner out with family","Best pizza in town","Brunch with friends"]],
+ ["plants","photo",null,["New plant for my room"]],
+ ["setup","photo",null,["Cleaned my desk finally"]]];
 const FOODS="*";
 const GEN={
  "maya.cooks":{v:["cooking",["15-minute fried rice that tastes like takeout","Tacos on a Tuesday, obviously","Garlic butter shrimp in one pan","My grandma's chicken soup","The crispiest potatoes ever","Lemon pasta for when you're tired","Breakfast burritos for the week","Spicy peanut noodles","Homemade pizza dough, no mixer","Cooking only with a microwave challenge"]],p:[["food",FOODS,["Dinner tonight","Meal prep done for the week","Fresh pasta, first try","Saturday brunch spread"]]],t:["What should I cook next week?","Kitchen is finally clean"]},
@@ -849,19 +1028,28 @@ const GEN={
  "nate.eats":{v:["cooking",["Can I cook better than a restaurant?","Copying my favorite dish at home"]],p:[["food",FOODS,["Rating this pizza: 8/10","Ramen spot downtown: 9/10","Best pasta in the city?","A salad that actually tastes good","Pancakes at the new cafe","Late night food run","Trying the viral noodles"]]],t:["Food review requests are open!"],photoFirst:true},
  "ava.draws":{v:["art",["Speedpaint #N","Painting the view from my window","Art class homework","Sunset study","Trying a new brush","Mini painting challenge"]],p:[["plants",null,["Plant shelf update","New baby plant","Repotting day"]]],t:["Selling prints soon!"]},
  "kofi.and.biscuit":{v:["pets",["Biscuit vs the ball, round NN","Biscuit learns to sit","First time at the beach","Zoomies at the park","Biscuit meets a squirrel","Fetch practice","Bath time (he hates it)"]],p:[["sunset",null,["Evening walk","Sunset with my best friend"]]],t:["Biscuit is 2 today!","He stole my sock again"]},
+ "mia.dances":{v:["dance",["Learn this dance with me","New dance challenge","Freestyle Friday","Dance tutorial part NN","Recital practice","Trying the trending dance"]],p:[["sunset",null,["After dance class"]],["setup",null,["My practice corner"]]],t:["Recital is next week!","What dance should I learn next?"]},
+ "theo.kicks":{v:["soccer",["Trick shot #N","Practice day","Crossbar challenge","Left foot only challenge","Juggling record attempt","Game day warm up"]],p:[["sunset",null,["Field at sunset"]],["food","*",["Post-game snack"]]],t:["We won 3-1 today!","Who's your favorite player?"]},
+ "june.reads":{v:["books",["What I'm reading this week","Cozy reading night","Book haul","Rating my last 5 books","Reading in the rain","Books that made me cry"]],p:[["plants",null,["My reading nook plants"]],["sunset",null,["Reading outside tonight"]],["food","pancakes",["Breakfast and a book"]]],t:["What should I read next?","Finished 4 books this month!"]},
+ "leo.labs":{v:["science",["Volcano experiment","Homemade slime","Color changing water","Rain cloud in a jar","Science experiment #N","Fizzy rocket test"]],p:[["setup",null,["My science desk"]],["plants",null,["Growing beans for an experiment"]]],t:["What experiment should I try next?","Always do experiments with a grown-up!"]},
+ "nina.thrifts":{v:["fashion",["Thrift flip #N","Outfit ideas for school","Get ready with me","Styling one jacket three ways","Thrift haul","Back to school fits"]],p:[["setup",null,["My sewing desk"]],["food","*",["Lunch break at the market"]]],t:["Found a vintage jacket for $5!","Thrift haul video tomorrow"]},
  "zoe.vlogs":{v:["vlog",["Day in my life","Get ready with me","Storytime: worst haircut ever","Room makeover","What I got at the mall","Morning routine 2.0","Weekend vlog","Packing for vacation","Outfit ideas for school","Answering your questions"]],p:[["setup",null,["My new desk corner"]],["plants",null,["Plant shopping haul"]],["food",FOODS,["Lunch date"]]],t:["Q&A video tomorrow, ask me anything"]}};
-const TAGS={cooking:["Hot Sauce","Mug"],baking:["Cookie Box"],music:["Ukulele","Headphones","Speaker"],gaming:["Controller","Headphones","Keyboard"],skate:["Skateboard","Sneakers","Cap"],travel:["Instant Camera","Backpack","Water Bottle"],vlog:["Hoodie","Graphic Tee","Tote Bag","Candle"],pets:["Frisbee","Soccer Ball"],art:["Paint Set","Art Print"],plants:["Mini Plant"],setup:["Keyboard","Desk Lamp"],food:["Chips","Iced Coffee"],sunset:["Sunglasses"]};
+const TAGS={dance:["Sneakers","Hoodie"],soccer:["Soccer Ball","Sneakers","Water Bottle"],books:["Candle","Blanket","Mug"],science:["Gummy Jar","Puzzle"],fashion:["Tote Bag","Sunglasses","Hoodie","Cap"],cooking:["Hot Sauce","Mug"],baking:["Cookie Box"],music:["Ukulele","Headphones","Speaker"],gaming:["Controller","Headphones","Keyboard"],skate:["Skateboard","Sneakers","Cap"],travel:["Instant Camera","Backpack","Water Bottle"],vlog:["Hoodie","Graphic Tee","Tote Bag","Candle"],pets:["Frisbee","Soccer Ball"],art:["Paint Set","Art Print"],plants:["Mini Plant"],setup:["Keyboard","Desk Lamp"],food:["Chips","Iced Coffee"],sunset:["Sunglasses"]};
 (function genPosts(){seed=4242;const now=Date.now();
   USERS.forEach((u,ui)=>{const G2=GEN[u.h];let tm=now-36e5*(30+ui*3);
-    for(let i=0;i<30;i++){tm-=36e5*(14+rnd()*40);const r=rnd();let p;
-      const vidShare=G2.photoFirst?.25:.62;
-      if(r<vidShare){const [sc,titles]=G2.v;p={kind:"video",scene:sc,variant:null,text:titles[i%titles.length].replace("#N","#"+(i+2)).replace("NN",String(i+2)),caps:CAPS[sc][Math.floor(rnd()*CAPS[sc].length)]}}
-      else if(r<.92){const [sc,variant,titles]=G2.p[Math.floor(rnd()*G2.p.length)];p={kind:"photo",scene:sc,variant:variant==="*"?pick(["pizza","salad","ramen","pancakes","pasta"]):variant,text:titles[Math.floor(rnd()*titles.length)],caps:null}}
+    const N=SEED.some(s=>s[0]===u.h)?30:33;
+    for(let i=0;i<N;i++){tm-=36e5*(14+rnd()*40);const r=rnd();let p;
+      const own=()=>{const [sc,variant,titles]=G2.p[Math.floor(rnd()*G2.p.length)];return{kind:"photo",scene:sc,variant:variant==="*"?pick(FOODV):variant,text:titles[Math.floor(rnd()*titles.length)],caps:null}};
+      if(r<.42){if(G2.photoFirst&&rnd()<.65)p=own();else{const [sc,titles]=G2.v;p={kind:"video",scene:sc,variant:null,text:titles[i%titles.length].replace("#N","#"+(i+2)).replace("NN",String(i+2)),caps:CAPS[sc][Math.floor(rnd()*CAPS[sc].length)]}}}
+      else if(r<.55)p=own();
+      else if(r<.93){const pool=EXTRA.filter(e=>e[0]!==G2.v[0]&&!(e[3].some(tt=>tt.includes(u.n.split(" ")[0])))),e=pool[Math.floor(rnd()*pool.length)],title=e[3][Math.floor(rnd()*e[3].length)];
+        p=e[1]==="video"?{kind:"video",scene:e[0],variant:null,text:title,caps:CAPS[e[0]][Math.floor(rnd()*CAPS[e[0]].length)]}:{kind:"photo",scene:e[0],variant:e[2]==="*"?pick(FOODV):e[2],text:title,caps:null}}
       else p={kind:"text",scene:null,variant:null,text:G2.t[Math.floor(rnd()*G2.t.length)],caps:null};
       const tg=p.scene&&TAGS[p.scene]&&rnd()<.45?byNoun(pick(TAGS[p.scene])):null;
       seeded.push(Object.assign(p,{id:"g"+ui+"_"+i,user:u.h,product:tg?tg.id:null,likes:Math.floor(40+rnd()*u.followers*.05),views:Math.floor(500+rnd()*u.followers*1.2),time:tm,
         comments:Array.from({length:Math.floor(rnd()*4)},()=>({u:pick(USERS).h,t:pick(CMTS)}))}))}});
 })();
+seed=777;seeded.forEach(p=>{const used=new Set();p.comments=p.comments.map(()=>{let u,k=0;do{u=pick(USERS).h}while(u===p.user&&k++<5);let t;k=0;do{t=cmtFor(p,rnd)}while(used.has(t)&&k++<8);used.add(t);return{u,t}})});
 
 /* ---------- state ---------- */
 const DEFAULT_ME={h:"you",n:"You",bio:"Just here for the vlogs.",look:{skin:"#e0ac69",style:"short",hair:"#3b2314",shirt:"#2f4bff",glasses:false,bg:"#cfd8ff"},photo:null};
@@ -911,7 +1099,7 @@ const AUD=(()=>{
     upbeat:{bpm:120,prog:["Em","C","G","D"],play(t,st,ch,sd){if(st%2===0)kick(t,.55);if(st%4===2)noise(t,.15,.2,"bandpass",2000);noise(t,.03,.05,"highpass",8000);tone(t,ch[0]-12+(st%2?12:0),sd*.9,"sawtooth",.06,null,700);if(st%8===0)ch.forEach(n=>tone(t,n+12,sd*2,"sawtooth",.02,null,2000))}},
     road:{bpm:100,prog:["Dm7","G7","Cmaj7","Am7"],play(t,st,ch,sd){const b=st%8;if(b===0)ch.forEach(n=>tone(t,n+12,sd*8,"triangle",.035,null,1500,.3));if(st%4===0)kick(t,.38);if(b===4)noise(t,.12,.1,"bandpass",1500);if(st%2===0)tone(t,ch[0]-12,sd*1.8,"sine",.18);if(b===3||b===6)tone(t,ch[2]+24,sd,"triangle",.05,null,3000)}},
     happy:{bpm:116,prog:["C","G","Am7","Fmaj7"],play(t,st,ch,sd){const arp=[0,2,1,2,3,2,1,2];tone(t,ch[arp[st%8]]+12,sd*1.2,"triangle",.09,null,3500);if(st%4===0)kick(t,.32);if(st%4===2)noise(t,.08,.13,"bandpass",1200);if(st%8===0)tone(t,ch[0]-12,sd*4,"sine",.16)}}};
-  const SND={cooking:["lofi","sizzle"],baking:["happy","kitchen"],music:["acoustic",null],gaming:["chip","coins"],skate:["upbeat","roll"],travel:["road","engine"],vlog:["lofi","room"],pets:["happy","park"],art:["lofi","brush"]};
+  const SND={dance:["upbeat","claps"],soccer:["upbeat","crowd"],books:["lofi","rain"],science:["happy","bubbles"],fashion:["happy","camera"],cooking:["lofi","sizzle"],baking:["happy","kitchen"],music:["acoustic",null],gaming:["chip","coins"],skate:["upbeat","roll"],travel:["road","engine"],vlog:["lofi","room"],pets:["happy","park"],art:["lofi","brush"]};
   function amb(kind,t,st,sd){const R=Math.random;switch(kind){
     case"sizzle":noise(t,sd*1.3,.05+R()*.04,"bandpass",3500+R()*2500,sfx);if(R()<.6)noise(t+R()*sd,.025,.18,"highpass",5000,sfx);break;
     case"kitchen":if(st%16===7)tone(t,96,.4,"sine",.05,sfx);if(st%8===3)noise(t,.25,.05,"bandpass",900,sfx);break;
@@ -920,14 +1108,19 @@ const AUD=(()=>{
     case"engine":noise(t,sd*1.2,.22,"lowpass",140,sfx);break;
     case"room":if(R()<.05)sweep(t,2600,4200,.12,.03);break;
     case"park":if(R()<.25)sweep(t,2500+R()*800,3800+R()*900,.08+R()*.06,.04);if(st%24===9)bark(t);noise(t,sd*1.1,.015,"highpass",3000,sfx);break;
-    case"brush":if(R()<.5)noise(t,.2+R()*.2,.05,"bandpass",1100+R()*600,sfx);break}}
+    case"brush":if(R()<.5)noise(t,.2+R()*.2,.05,"bandpass",1100+R()*600,sfx);break;
+    case"claps":if(st%4===2)noise(t,.06,.22,"bandpass",1500,sfx);break;
+    case"crowd":noise(t,sd*1.3,.05,"bandpass",700,sfx);if(st%32===28)sweep(t,2100,2400,.4,.05);if(st%32===30)noise(t,.8,.12,"bandpass",900,sfx);break;
+    case"rain":noise(t,sd*1.3,.035,"highpass",4500,sfx);if(R()<.3)tone(t+R()*sd,100+Math.floor(R()*6),.05,"sine",.02,sfx);break;
+    case"bubbles":if(R()<.55)sweep(t+R()*sd*.5,300+R()*300,900+R()*600,.07,.05);break;
+    case"camera":if(st%16===0){noise(t,.04,.25,"highpass",3000,sfx);noise(t+.06,.05,.15,"highpass",2000,sfx)}break}}
   function sched(){if(!cur||!ctx)return;const g=cur.g,sd=60/g.bpm/2;while(nextT<ctx.currentTime+.25){const ch=CH[g.prog[Math.floor(step/8)%g.prog.length]];try{g.play(nextT,step,ch,sd);amb(cur.amb,nextT,step,sd)}catch(e){}step++;nextT+=sd}}
   function start(p){stop();unlock();if(!ctx||!p||!p.scene)return;const [gn,a]=SND[p.scene]||["lofi",null];cur={p,g:GEN[gn],amb:a};step=0;lastCap=-1;nextT=ctx.currentTime+.08;
     mus.gain.cancelScheduledValues(ctx.currentTime);mus.gain.setValueAtTime(.5,ctx.currentTime);timer=setInterval(sched,60);sched()}
   function stop(){if(timer){clearInterval(timer);timer=null}cur=null;lastCap=-1;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}}
   const loadV=()=>{try{voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))}catch(e){}};
   if(window.speechSynthesis){loadV();try{speechSynthesis.addEventListener("voiceschanged",loadV)}catch(e){}}
-  const VP={"maya.cooks":[1.15,1,"f"],"jay.plays":[.95,1,"m"],"skatewithsam":[1,1.08,"m"],"lulu.bakes":[1.25,1,"f"],"dex.games":[.9,1.1,"m"],"priya.travels":[1.1,.97,"f"],"nate.eats":[.95,1,"m"],"ava.draws":[1.2,.96,"f"],"kofi.and.biscuit":[.85,.96,"m"],"zoe.vlogs":[1.3,1.06,"f"]};
+  const VP={"maya.cooks":[1.15,1,"f"],"jay.plays":[.95,1,"m"],"skatewithsam":[1,1.08,"m"],"lulu.bakes":[1.25,1,"f"],"dex.games":[.9,1.1,"m"],"priya.travels":[1.1,.97,"f"],"nate.eats":[.95,1,"m"],"ava.draws":[1.2,.96,"f"],"kofi.and.biscuit":[.85,.96,"m"],"zoe.vlogs":[1.3,1.06,"f"],"mia.dances":[1.25,1.05,"f"],"theo.kicks":[.95,1.05,"m"],"june.reads":[1.15,.95,"f"],"leo.labs":[1,1.02,"m"],"nina.thrifts":[1.2,1,"f"]};
   const FEM=/samantha|karen|moira|tessa|victoria|\bava\b|allison|susan|zira|serena|fiona|female|joanna|salli|kimberly|nicky|martha|catherine|aria|jenny|google us english|kathy|vicki|princess|flo|shelley|sandy|grandma/i;
   const MAL=/daniel|alex|fred|\btom\b|aaron|arthur|david|mark|rishi|\bmale\b|guy|ryan|matthew|oliver|gordon|\blee\b|ralph|junior|eddy|reed|rocko|grandpa|uk english male/i;
   function voiceFor(h){const v=VP[h]||[1,1,null];let pool=voices;if(v[2]==="f")pool=voices.filter(x=>FEM.test(x.name));else if(v[2]==="m")pool=voices.filter(x=>MAL.test(x.name)&&!FEM.test(x.name));
@@ -996,7 +1189,7 @@ const VLOG_TYPES=[["vlog","Day in my life"],["cooking","Cooking"],["baking","Bak
 let draft={text:"",img:null,kind:"text",product:"",scene:"vlog"};
 const openCm=new Set();
 function renderFeed(){
-  const topics=["For you","Following","Food","Music","Vlogs","Gaming","Sports","Pets","Art","Travel"];
+  const topics=["For you","Following","Food","Music","Vlogs","Dance","Gaming","Sports","Fashion","Science","Books","Pets","Art","Travel"];
   let list=allPosts().sort((a,b)=>b.time-a.time);
   if(S.topic==="Following")list=list.filter(p=>S.follow[p.user]||p.user===S.me.h);
   else if(S.topic!=="For you")list=list.filter(p=>p.scene&&TOPIC[p.scene]===S.topic);
@@ -1117,7 +1310,12 @@ const PROF={"maya.cooks":{cat:"Food & cooking",link:"mayacooks.kitchen",loc:"Aus
 "nate.eats":{cat:"Food reviewer",link:"",loc:"Chicago, IL",hl:["Pizza","Ramen","10/10s"]},
 "ava.draws":{cat:"Artist",link:"avadraws.art",loc:"Denver, CO",hl:["Paintings","Plants","Process"]},
 "kofi.and.biscuit":{cat:"Pet creator",link:"",loc:"Toronto, ON",hl:["Biscuit","Park days","Tricks"]},
-"zoe.vlogs":{cat:"Video creator",link:"zoekim.tv",loc:"Los Angeles, CA",hl:["GRWM","Storytimes","Fits","Trips"]}};
+"zoe.vlogs":{cat:"Video creator",link:"zoekim.tv",loc:"Los Angeles, CA",hl:["GRWM","Storytimes","Fits","Trips"]},
+"mia.dances":{cat:"Dancer",link:"miadances.studio",loc:"Miami, FL",hl:["Tutorials","Challenges","Recitals"]},
+"theo.kicks":{cat:"Athlete",link:"",loc:"Columbus, OH",hl:["Trick shots","Games","Drills"]},
+"june.reads":{cat:"Book reviewer",link:"junereads.club",loc:"Portland, OR",hl:["Favorites","To read","Cozy"]},
+"leo.labs":{cat:"Science creator",link:"leolabs.fun",loc:"Phoenix, AZ",hl:["Volcanoes","Slime","Space"]},
+"nina.thrifts":{cat:"Fashion",link:"ninathrifts.shop",loc:"Brooklyn, NY",hl:["Flips","Outfits","Hauls"]}};
 const linkIco=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg>`;
 const pinIco=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>`;
 const gridIco=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
@@ -1161,9 +1359,13 @@ function openComments(id){const p=allPosts().find(x=>x.id===id);const cm=[...(p.
   const sc=sheet(`<div class="body" style="padding-top:18px"><h3>Comments</h3><div class="comments" style="border:0;padding:0">${cm.map(c=>{const cu=userOf(c.u)||S.me;return`<p>${av(cu,"xs")}<span><b>@${esc(cu.h)}</b> ${esc(c.t)}</span></p>`}).join("")}<form data-cform="${id}"><input id="sci-${id}" maxlength="200" placeholder="Add a comment" aria-label="Add a comment"><button class="btn ghost sm" type="submit">Send</button></form></div></div>`);
   sc.addEventListener("submit",commentSubmit)}
 function renderMsgs(box,h){box.innerHTML=S.chats[h].msgs.map(m=>`<div class="bub ${m.from==="me"?"me":"them"}">${esc(m.t)}</div>`).join("");box.scrollTop=box.scrollHeight}
+const pendingReply={};
 function scheduleReply(h){
-  setTimeout(()=>{const box=document.querySelector(`.msgs[data-chat="${h}"]`);if(box){box.insertAdjacentHTML("beforeend",`<div class="typing">${esc(h)} is typing…</div>`);box.scrollTop=box.scrollHeight}},800);
-  setTimeout(()=>{const c=S.chats[h]||(S.chats[h]={msgs:[],unread:false});c.msgs.push({from:h,t:REPLIES[Math.floor(Math.random()*REPLIES.length)],time:Date.now()});
+  clearTimeout(pendingReply[h+"t"]);clearTimeout(pendingReply[h]);
+  pendingReply[h+"t"]=setTimeout(()=>{const box=document.querySelector(`.msgs[data-chat="${h}"]`);if(box){box.insertAdjacentHTML("beforeend",`<div class="typing">${esc(h)} is typing…</div>`);box.scrollTop=box.scrollHeight}},800);
+  pendingReply[h]=setTimeout(()=>{const c=S.chats[h]||(S.chats[h]={msgs:[],unread:false});const lastMe=[...c.msgs].reverse().find(m=>m.from==="me");
+    const res=botReply(h,lastMe?lastMe.t.replace(/^Replied to your story: /,""):"",c);c.lastQ=res.q;c.lastBot=res.text;
+    document.querySelectorAll(`.msgs[data-chat="${h}"] .typing`).forEach(e=>e.remove());c.msgs.push({from:h,t:res.text,time:Date.now()});
     const box=document.querySelector(`.msgs[data-chat="${h}"]`);if(box)renderMsgs(box,h);else{c.unread=true;toast(`@${h} sent you a message`)}save();updateDot();if(S.tab==="inbox")renderInbox()},2200+Math.random()*1500)}
 function openChat(h){const u=U(h);const c=S.chats[h]||(S.chats[h]={msgs:[],unread:false});c.unread=false;save();updateDot();if(S.tab==="inbox")renderInbox();
   const sc=sheet(`<div class="chat"><div class="chead">${av(u,"sm")}<div><div style="font-weight:800">${esc(u.n)}${vf(u)}</div><div class="sub" style="margin:0;font-size:13px">@${esc(u.h)} · Active now</div></div></div><div class="msgs" data-chat="${h}"></div><form id="chatf"><input id="chatin" maxlength="300" placeholder="Message @${esc(h)}" aria-label="Message" autocomplete="off"><button class="btn sm" type="submit">Send</button></form></div>`);
@@ -1186,7 +1388,7 @@ function renderInbox(){
 function simulate(pid){const fans=USERS.slice().sort(()=>Math.random()-.5).slice(0,4);
   [[1800,"like"],[4500,"comment"],[7500,"like"],[11000,"follow"]].forEach(([ms,type],i)=>setTimeout(()=>{const p=S.mine.find(x=>x.id===pid);if(!p)return;const u=fans[i];let text;
     if(type==="like"){p.likes++;text="liked your post"}
-    else if(type==="comment"){const c=CMTS[Math.floor(Math.random()*CMTS.length)];p.comments.push({u:u.h,t:c});text="commented: "+c;
+    else if(type==="comment"){const c=cmtFor(p);p.comments.push({u:u.h,t:c});text="commented: "+c;
       const box=document.querySelector(`.post[data-id="${pid}"] .comments`);if(box){box.hidden=false;box.querySelector("form").insertAdjacentHTML("beforebegin",`<p>${av(u,"xs")}<span><b>@${esc(u.h)}</b> ${esc(c)}</span></p>`)}}
     else{S.fans++;text="started following you"}
     S.notifs.unshift({u:u.h,text,time:Date.now(),pid:type==="follow"?null:pid});save();
@@ -1280,7 +1482,11 @@ function feedClicks(e){
 }
 function commentSubmit(e){const f=e.target.closest("[data-cform]");if(!f)return;e.preventDefault();const id=f.dataset.cform,inp=f.querySelector("input"),v=inp.value.trim();if(!v)return;
   (S.extra[id]=S.extra[id]||[]).push({u:S.me.h,t:v});save();openCm.add(id);const p=document.createElement("p");p.innerHTML=`${av(S.me,"xs")}<span><b>@${esc(S.me.h)}</b> ${esc(v)}</span>`;f.before(p);inp.value="";
-  document.querySelectorAll(`[data-cm="${id}"] span:last-child`).forEach(c=>c.textContent=+c.textContent+1)}
+  document.querySelectorAll(`[data-cm="${id}"] span:last-child`).forEach(c=>c.textContent=+c.textContent+1);
+  const post=allPosts().find(x=>x.id===id);
+  if(post&&post.user!==S.me.h&&U(post.user))setTimeout(()=>{const rep=commentReply(post,v),cu=U(post.user);(S.extra[id]=S.extra[id]||[]).push({u:cu.h,t:rep});save();
+    document.querySelectorAll(`[data-cform="${id}"]`).forEach(f2=>{const pe=document.createElement("p");pe.innerHTML=`${av(cu,"xs")}<span><b>@${esc(cu.h)}</b> ${esc(rep)}</span>`;f2.before(pe)});
+    document.querySelectorAll(`[data-cm="${id}"] span:last-child`).forEach(c=>c.textContent=+c.textContent+1);toast(`${cu.h} replied to your comment`)},2500+Math.random()*2000)}
 view.addEventListener("click",e=>{
   if(feedClicks(e))return;const t=e.target;
   const st=t.closest("[data-story]");if(st){if(st.dataset.story==="me"){const c=$("#ctext");if(c){c.focus();c.scrollIntoView({block:"center"})}}else openStory(+st.dataset.story);return}
