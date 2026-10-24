@@ -329,6 +329,8 @@ nav.tabs .dot{position:absolute;top:6px;right:calc(50% - 18px);width:10px;height
 .storyv .tapL,.storyv .tapR{position:absolute;top:0;bottom:80px;width:40%;z-index:1;border:0;background:none}
 .storyv .tapL{left:0}.storyv .tapR{right:0}
 [hidden]{display:none!important}
+.media .snd{position:absolute;right:12px;bottom:14px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.88);color:#4b2e3b;display:grid;place-items:center;z-index:3;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.media .snd svg{width:20px;height:20px}
 .btnrow{display:flex;gap:8px}
 .btnrow .btn{flex:1;padding:9px 12px}
 .ph{display:grid;gap:12px}
@@ -399,39 +401,96 @@ const talk=t=>Math.max(0,Math.sin(t*11)*Math.sin(t*2.7+1));
 const blink=t=>(t%3.4)<.13;
 
 /* ---------- a person, bust shot ---------- */
+function mixC(a,b,k){const p=v=>[parseInt(v.slice(1,3),16),parseInt(v.slice(3,5),16),parseInt(v.slice(5,7),16)];const A=p(a),B=p(b);return"#"+A.map((v,i)=>Math.round(v+(B[i]-v)*k).toString(16).padStart(2,"0")).join("")}
 function person(x,cx,cy,s,L,o){
   o=o||{};const g=G(x),hc=L.hair,sk=L.skin;
-  if(L.style==="long")g.R(cx-41*s,cy-34*s,82*s,112*s,34*s,hc);
-  if(L.style==="afro")g.C(cx,cy-12*s,55*s,hc);
-  if(L.style==="puffs"){g.C(cx-40*s,cy-34*s,21*s,hc);g.C(cx+40*s,cy-34*s,21*s,hc)}
-  g.E(cx,cy+100*s,72*s,56*s,L.shirt);
-  const sgr=x.createLinearGradient(cx-72*s,0,cx+72*s,0);sgr.addColorStop(0,"rgba(255,255,255,.14)");sgr.addColorStop(1,"rgba(0,0,0,.16)");g.E(cx,cy+100*s,72*s,56*s,sgr);
-  g.R(cx-11*s,cy+22*s,22*s,26*s,6*s,shade(sk,-14));
-  g.E(cx,cy+48*s,16*s,7*s,shade(sk,-14));
+  const skD=shade(sk,-30),skDD=shade(sk,-60),skL=shade(sk,22),hcL=shade(hc,55),hcD=shade(hc,-30);
+  const X=v=>cx+v*s,Y=v=>cy+v*s;
+  const path=pts=>{x.beginPath();x.moveTo(X(pts[0]),Y(pts[1]));for(let i=2;i<pts.length;i+=6)x.bezierCurveTo(X(pts[i]),Y(pts[i+1]),X(pts[i+2]),Y(pts[i+3]),X(pts[i+4]),Y(pts[i+5]));x.closePath()};
+  const rg=(x0,y0,r0,r1,stops)=>{const gr=x.createRadialGradient(X(x0),Y(y0),r0*s,X(x0),Y(y0),r1*s);stops.forEach((c,i)=>gr.addColorStop(i/(stops.length-1),c));return gr};
+  const lg=(x0,y0,x1,y1,stops)=>{const gr=x.createLinearGradient(X(x0),Y(y0),X(x1),Y(y1));stops.forEach((c,i)=>gr.addColorStop(i/(stops.length-1),c));return gr};
+  const hairFill=lg(0,-55,0,40,[hcL,hc,hcD]);
+  /* back hair */
+  if(L.style==="long"){path([-30,-34, -46,-10,-46,40,-44,86, -20,92,20,92,44,86, 46,40,46,-10,30,-34, 14,-50,-14,-50,-30,-34]);x.fillStyle=lg(0,-50,0,90,[hc,hcD]);x.fill()}
+  if(L.style==="afro"){x.beginPath();x.ellipse(X(0),Y(-18),58*s,54*s,0,0,TAU);x.fillStyle=rg(-14,-36,6,64,[hcL,hc,hcD]);x.fill()}
+  if(L.style==="puffs"){[-1,1].forEach(d=>{x.beginPath();x.arc(X(d*36),Y(-36),21*s,0,TAU);x.fillStyle=rg(d*30,-44,3,24,[hcL,hc,hcD]);x.fill()})}
+  if(L.style==="curly"){x.beginPath();x.ellipse(X(0),Y(-12),40*s,42*s,0,0,TAU);x.fillStyle=hcD;x.fill()}
+  /* neck */
+  x.fillStyle=lg(0,10,0,62,[skDD,skD,sk]);x.fillRect(X(-11),Y(8),22*s,56*s);
+  /* torso */
+  path([-15,44, -40,47,-68,52,-82,72, -90,140,-96,240,-98,330, -30,330,30,330,98,330, 96,240,90,140,82,72, 68,52,40,47,15,44, 9,57,-9,57,-15,44]);
+  x.fillStyle=lg(-95,0,95,0,[shade(L.shirt,-28),L.shirt,shade(L.shirt,10),shade(L.shirt,-32)]);x.fill();
+  x.fillStyle=lg(0,44,0,200,["rgba(255,255,255,.08)","rgba(0,0,0,.18)"]);x.fill();
+  x.beginPath();x.moveTo(X(-15),Y(44));x.bezierCurveTo(X(-9),Y(57),X(9),Y(57),X(15),Y(44));x.strokeStyle=shade(L.shirt,-35);x.lineWidth=3.2*s;x.stroke();
+  x.globalAlpha=.35;x.strokeStyle=shade(L.shirt,-45);x.lineWidth=2*s;[[-1],[1]].forEach(([d])=>{x.beginPath();x.moveTo(X(d*70),Y(64));x.quadraticCurveTo(X(d*76),Y(110),X(d*72),Y(160));x.stroke();x.beginPath();x.moveTo(X(d*48),Y(120));x.quadraticCurveTo(X(d*40),Y(140),X(d*46),Y(170));x.stroke()});x.globalAlpha=1;
   if(o.guitar)guitar(x,cx+6*s,cy+100*s,s,sk,o.strum||0);
-  g.C(cx-33*s,cy+4*s,7*s,sk);g.C(cx+33*s,cy+4*s,7*s,sk);
-  g.E(cx,cy,34*s,37*s,sk);
-  const fgr=x.createRadialGradient(cx-10*s,cy-12*s,4*s,cx,cy,40*s);fgr.addColorStop(0,"rgba(255,255,255,.2)");fgr.addColorStop(1,"rgba(0,0,0,.13)");g.E(cx,cy,34*s,37*s,fgr);
-  const top=(a0,a1)=>{x.beginPath();x.ellipse(cx,cy-6*s,36*s,34*s,0,a0,a1);x.fillStyle=hc;x.fill()};
+  /* jaw shadow on neck */
+  x.beginPath();x.ellipse(X(0),Y(30),17*s,9*s,0,0,TAU);x.fillStyle="rgba(0,0,0,.18)";x.fill();
+  /* ears */
+  [-1,1].forEach(d=>{x.beginPath();x.ellipse(X(d*26.5),Y(-3),5.5*s,9.5*s,d*.15,0,TAU);x.fillStyle=skD;x.fill();x.beginPath();x.ellipse(X(d*26),Y(-3),3*s,6*s,d*.15,0,TAU);x.fillStyle=sk;x.fill()});
+  /* face */
+  const face=[0,-44, 17,-44,27,-31,27,-12, 27,6,24,20,14,30, 8,36,4,38,0,38, -4,38,-8,36,-14,30, -24,20,-27,6,-27,-12, -27,-31,-17,-44,0,-44];
+  path(face);x.fillStyle=rg(-7,-12,4,52,[skL,sk,sk,skD]);x.fill();
+  x.save();path(face);x.clip();
+  x.fillStyle=lg(0,10,0,40,["rgba(0,0,0,0)","rgba(0,0,0,.10)"]);x.fillRect(X(-30),Y(10),60*s,30*s);
+  [-1,1].forEach(d=>{x.fillStyle=rg(d*15,10,1,10,["rgba(235,110,110,.28)","rgba(235,110,110,0)"]);x.fillRect(X(d*15-11),Y(-1),22*s,22*s)});
+  x.restore();
+  /* front hair */
+  x.fillStyle=hairFill;
+  const strands=(pts)=>{x.save();x.globalAlpha=.35;x.strokeStyle=hcL;x.lineWidth=1.2*s;pts.forEach(p=>{x.beginPath();x.moveTo(X(p[0]),Y(p[1]));x.quadraticCurveTo(X(p[2]),Y(p[3]),X(p[4]),Y(p[5]));x.stroke()});x.restore()};
   switch(L.style){
-    case"short":top(Math.PI,TAU);g.E(cx-10*s,cy-22*s,24*s,11*s,hc,-.2);break;
-    case"long":top(Math.PI,TAU);g.E(cx-15*s,cy-21*s,22*s,11*s,hc,-.45);g.E(cx+15*s,cy-21*s,22*s,11*s,hc,.45);break;
-    case"bun":top(Math.PI,TAU);g.C(cx,cy-46*s,15*s,hc);break;
-    case"curly":top(Math.PI,TAU);for(let a=Math.PI*1.04;a<TAU-.05;a+=.3)g.C(cx+Math.cos(a)*34*s,cy-6*s+Math.sin(a)*32*s,11*s,hc);break;
-    case"buzz":top(Math.PI*1.06,Math.PI*1.94);break;
-    default:top(Math.PI,TAU);
+    case"short":path([-28,-6, -31,-40,-12,-54,6,-52, 24,-51,33,-36,29,-8, 27,-20,22,-31,10,-33, -2,-28,-16,-33,-23,-22, -25,-16,-27,-12,-28,-6]);x.fill();strands([[-18,-44,-4,-50,12,-46],[-22,-36,-6,-44,14,-40],[0,-48,16,-44,24,-34]]);break;
+    case"long":path([-29,-8, -32,-42,-14,-54,0,-50, 14,-54,32,-42,29,-8, 30,20,32,50,36,66, 28,70,24,40,22,10, 22,-14,14,-32,0,-36, -14,-32,-22,-14,-22,10, -24,40,-28,70,-36,66, -32,50,-30,20,-29,-8]);x.fill();strands([[-4,-46,-18,-40,-24,-16],[4,-46,18,-40,24,-16],[-26,0,-28,30,-32,60],[26,0,28,30,32,60]]);break;
+    case"bun":path([-28,-8, -31,-42,-14,-50,0,-49, 14,-50,31,-42,28,-8, 24,-24,14,-34,0,-35, -14,-34,-24,-24,-28,-8]);x.fill();x.beginPath();x.arc(X(0),Y(-52),14*s,0,TAU);x.fillStyle=rg(-4,-57,2,16,[hcL,hc,hcD]);x.fill();x.fillStyle=L.shirt;x.fillRect(X(-8),Y(-41),16*s,4*s);strands([[-20,-40,-8,-46,0,-46],[20,-40,8,-46,0,-46]]);break;
+    case"buzz":x.globalAlpha=.85;path([-27,-14, -29,-40,-12,-48,0,-47, 12,-48,29,-40,27,-14, 22,-26,12,-30,0,-31, -12,-30,-22,-26,-27,-14]);x.fill();x.globalAlpha=1;break;
+    case"curly":path([-28,-6, -31,-40,-12,-50,0,-49, 12,-50,31,-40,28,-6, 24,-24,12,-31,0,-31, -12,-31,-24,-24,-28,-6]);x.fill();
+      for(let a=Math.PI*1.02;a<Math.PI*1.98;a+=.22){const px=Math.cos(a)*32,py=-10+Math.sin(a)*36;x.beginPath();x.arc(X(px),Y(py),8.5*s,0,TAU);x.fillStyle=rg(px-2,py-3,1,10,[hcL,hc,hcD]);x.fill()}break;
+    case"afro":path([-27,-14, -28,-38,-12,-46,0,-45, 12,-46,28,-38,27,-14, 22,-27,12,-31,0,-31, -12,-31,-22,-27,-27,-14]);x.fill();break;
+    case"puffs":path([-28,-10, -30,-40,-12,-48,0,-47, 12,-48,30,-40,28,-10, 24,-26,12,-31,0,-31, -12,-31,-24,-26,-28,-10]);x.fill();strands([[0,-46,-14,-42,-24,-30],[0,-46,14,-42,24,-30]]);break;
+    default:path([-28,-8, -31,-42,-14,-50,0,-49, 14,-50,31,-42,28,-8, 24,-24,14,-34,0,-35, -14,-34,-24,-24,-28,-8]);x.fill();
   }
-  const ey=cy+5*s,ink="#2a1d17";
-  g.L(cx-18*s,ey-11*s,cx-7*s,ey-12*s,hc,2.6*s);g.L(cx+7*s,ey-12*s,cx+18*s,ey-11*s,hc,2.6*s);
-  if(o.blink){g.L(cx-15*s,ey,cx-9*s,ey,ink,2.4*s);g.L(cx+9*s,ey,cx+15*s,ey,ink,2.4*s)}
-  else{[-12,12].forEach(d=>{g.E(cx+d*s,ey,6.2*s,4.6*s,"#fff");g.C(cx+d*s,ey+.3*s,3.9*s,L.eye||"#5a3a22");g.C(cx+d*s,ey+.3*s,2*s,"#140c08");g.C(cx+(d+1.3)*s,ey-1.2*s,1.2*s,"#fff");g.A(cx+d*s,ey+1.5*s,6.6*s,Math.PI*1.08,Math.PI*1.92,ink,1.8*s)})}
-  x.globalAlpha=.22;g.C(cx-20*s,ey+11*s,6*s,"#ff5d73");g.C(cx+20*s,ey+11*s,6*s,"#ff5d73");x.globalAlpha=1;
-  g.A(cx,ey+7*s,3*s,.3,Math.PI-.3,shade(sk,-35),2*s);
-  const m=o.mouth||0;
-  if(m>.08){g.E(cx,cy+22*s,8*s,(2+m*6)*s,"#7a2c2c");if(m>.4)g.R(cx-5*s,cy+19*s,10*s,3*s,1*s,"#fff")}
-  else g.A(cx,cy+16*s,9*s,.3,Math.PI-.3,"#7a2c2c",2.4*s);
-  if(L.glasses){x.beginPath();x.arc(cx-12*s,ey,9*s,0,TAU);x.moveTo(cx+21*s,ey);x.arc(cx+12*s,ey,9*s,0,TAU);x.moveTo(cx-3*s,ey);x.lineTo(cx+3*s,ey);x.strokeStyle="#1d1d24";x.lineWidth=2.6*s;x.stroke()}
-  if(o.headset){g.A(cx,cy-4*s,41*s,Math.PI*1.05,Math.PI*1.95,"#222",6*s);g.R(cx-47*s,cy-8*s,13*s,26*s,5*s,"#222");g.R(cx+34*s,cy-8*s,13*s,26*s,5*s,"#222");g.L(cx-41*s,cy+14*s,cx-14*s,cy+26*s,"#222",3*s);g.C(cx-13*s,cy+26*s,3.5*s,"#222")}
+  /* brows */
+  const raise=(o.mouth||0)*2.2,bc=mixC(hc.length===7?hc:"#3b2314","#1a1210",.35);
+  [-1,1].forEach(d=>{x.beginPath();x.moveTo(X(d*5),Y(-12-raise));x.quadraticCurveTo(X(d*12),Y(-17.5-raise),X(d*19.5),Y(-13-raise*.6));x.quadraticCurveTo(X(d*12),Y(-15-raise),X(d*5),Y(-10-raise));x.closePath();x.fillStyle=bc;x.fill()});
+  /* eyes */
+  const ink="#24170f";
+  [-1,1].forEach(d=>{const ex=X(d*11),ey=Y(-2),w=7*s;
+    if(o.blink){x.beginPath();x.moveTo(ex-w,ey);x.quadraticCurveTo(ex,ey+3*s,ex+w,ey);x.strokeStyle=ink;x.lineWidth=1.6*s;x.stroke();return}
+    x.save();x.beginPath();x.moveTo(ex-w,ey+.5*s);x.bezierCurveTo(ex-w*.5,ey-5.5*s,ex+w*.5,ey-5.8*s,ex+w,ey-.3*s);x.bezierCurveTo(ex+w*.5,ey+4*s,ex-w*.5,ey+4.2*s,ex-w,ey+.5*s);x.closePath();
+    x.fillStyle="#f7f3f0";x.fill();x.clip();
+    const ir=x.createRadialGradient(ex+.4*s,ey,0.5*s,ex+.4*s,ey,4.6*s);ir.addColorStop(0,shade(L.eye||"#5a3a22",30));ir.addColorStop(1,shade(L.eye||"#5a3a22",-25));
+    x.beginPath();x.arc(ex+.4*s,ey+.2*s,4.5*s,0,TAU);x.fillStyle=ir;x.fill();
+    x.beginPath();x.arc(ex+.4*s,ey+.2*s,2.1*s,0,TAU);x.fillStyle="#0c0806";x.fill();
+    x.beginPath();x.arc(ex+1.8*s,ey-1.6*s,1.2*s,0,TAU);x.fillStyle="#fff";x.fill();
+    x.fillStyle="rgba(0,0,0,.18)";x.fillRect(ex-w,ey-6*s,2*w,3.2*s);
+    x.restore();
+    x.beginPath();x.moveTo(ex-w,ey+.5*s);x.bezierCurveTo(ex-w*.5,ey-5.5*s,ex+w*.5,ey-5.8*s,ex+w,ey-.3*s);x.strokeStyle=ink;x.lineWidth=1.7*s;x.lineCap="round";x.stroke();
+    x.beginPath();x.moveTo(ex+d*w*.92,ey-.6*s);x.lineTo(ex+d*(w+2.2*s),ey-2.6*s);x.lineWidth=1.3*s;x.stroke();
+    x.beginPath();x.moveTo(ex-w*.6,ey-6.8*s);x.quadraticCurveTo(ex,ey-8.6*s,ex+w*.7,ey-6.2*s);x.strokeStyle=skD;x.lineWidth=1*s;x.stroke();
+    x.beginPath();x.moveTo(ex-w*.7,ey+3*s);x.quadraticCurveTo(ex,ey+4.6*s,ex+w*.7,ey+2.6*s);x.strokeStyle="rgba(0,0,0,.12)";x.lineWidth=.9*s;x.stroke();
+  });
+  /* nose */
+  x.beginPath();x.moveTo(X(2.5),Y(-3));x.quadraticCurveTo(X(5),Y(8),X(4.5),Y(11));x.strokeStyle=skD;x.globalAlpha=.55;x.lineWidth=1.5*s;x.stroke();x.globalAlpha=1;
+  x.beginPath();x.ellipse(X(0),Y(11),6.5*s,3.8*s,0,0,Math.PI);x.fillStyle="rgba(0,0,0,.08)";x.fill();
+  [-1,1].forEach(d=>{x.beginPath();x.ellipse(X(d*3.2),Y(12.4),1.7*s,1*s,d*.4,0,TAU);x.fillStyle=skDD;x.globalAlpha=.55;x.fill();x.globalAlpha=1});
+  x.beginPath();x.ellipse(X(-.5),Y(8.5),2.2*s,1.6*s,0,0,TAU);x.fillStyle="rgba(255,255,255,.22)";x.fill();
+  /* mouth */
+  const lip=mixC(sk,"#c4545e",.42),lipD=shade(lip,-30),m=o.mouth||0;
+  if(m>.08){const oh=(1.6+m*5.5)*s;
+    x.beginPath();x.ellipse(X(0),Y(23),8.5*s,oh,0,0,TAU);x.fillStyle="#4a1518";x.fill();
+    if(m>.3){x.save();x.beginPath();x.ellipse(X(0),Y(23),8.5*s,oh,0,0,TAU);x.clip();x.fillStyle="#f4efe8";x.fillRect(X(-7),Y(23)-oh,14*s,2.6*s);x.fillStyle="#c25a63";x.beginPath();x.ellipse(X(0),Y(23)+oh,6*s,3*s,0,0,TAU);x.fill();x.restore()}
+    x.beginPath();x.ellipse(X(0),Y(23),9.3*s,oh+1.2*s,0,0,TAU);x.strokeStyle=lip;x.lineWidth=2.4*s;x.stroke()}
+  else{x.beginPath();x.moveTo(X(-9),Y(21.5));x.quadraticCurveTo(X(-4),Y(18.6),X(0),Y(20));x.quadraticCurveTo(X(4),Y(18.6),X(9),Y(21.5));x.quadraticCurveTo(X(0),Y(23),X(-9),Y(21.5));x.fillStyle=lipD;x.fill();
+    x.beginPath();x.moveTo(X(-8),Y(22));x.quadraticCurveTo(X(0),Y(29),X(8),Y(22));x.closePath();x.fillStyle=lip;x.fill();
+    x.beginPath();x.moveTo(X(-9.5),Y(21.3));x.quadraticCurveTo(X(0),Y(23.6),X(9.5),Y(21.3));x.strokeStyle=shade(lip,-55);x.lineWidth=1.2*s;x.stroke();
+    x.beginPath();x.ellipse(X(1),Y(25),3*s,1.1*s,0,0,TAU);x.fillStyle="rgba(255,255,255,.25)";x.fill()}
+  if(L.glasses){x.strokeStyle="#1d1d24";x.lineWidth=1.8*s;[-1,1].forEach(d=>{x.beginPath();rr(x,X(d*11-9.5),Y(-9),19*s,14*s,5*s);x.stroke();x.save();x.globalAlpha=.25;x.beginPath();x.moveTo(X(d*11-5),Y(-6));x.lineTo(X(d*11-1),Y(-8));x.strokeStyle="#fff";x.lineWidth=2*s;x.stroke();x.restore()});x.beginPath();x.moveTo(X(-1.5),Y(-3));x.quadraticCurveTo(X(0),Y(-5),X(1.5),Y(-3));x.stroke();x.beginPath();x.moveTo(X(-20.5),Y(-5));x.lineTo(X(-26),Y(-5));x.moveTo(X(20.5),Y(-5));x.lineTo(X(26),Y(-5));x.stroke()}
+  if(o.headset){const gd=G(x);gd.A(cx,cy-4*s,37*s,Math.PI*1.05,Math.PI*1.95,"#222",6*s);gd.R(cx-36*s,cy-12*s,12*s,24*s,5*s,"#222");gd.R(cx+24*s,cy-12*s,12*s,24*s,5*s,"#222");gd.L(cx-30*s,cy+10*s,cx-12*s,cy+24*s,"#222",2.6*s);gd.C(cx-11*s,cy+24*s,3.4*s,"#222")}
+  if(o.gesture){const k=o.gesture,hx=X(46+Math.sin(k*3)*5),hy=Y(118-Math.abs(Math.sin(k*2))*26);
+    x.beginPath();x.moveTo(X(92),Y(260));x.quadraticCurveTo(X(96),Y(190),hx,hy);x.strokeStyle=sk;x.lineWidth=17*s;x.lineCap="round";x.stroke();
+    x.beginPath();x.moveTo(X(92),Y(260));x.quadraticCurveTo(X(98),Y(200),X(84),Y(180));x.strokeStyle=L.shirt;x.lineWidth=21*s;x.stroke();
+    x.beginPath();x.ellipse(hx,hy-4*s,10*s,12*s,-.3,0,TAU);x.fillStyle=rg((hx-cx)/s-3,(hy-cy)/s-8,1,14,[skL,sk,skD]);x.fill();
+    x.beginPath();x.ellipse(hx-9*s,hy,4*s,7*s,-.9,0,TAU);x.fillStyle=sk;x.fill()}
 }
 function guitar(x,gx,gy,s,sk,strum){
   const g=G(x);x.save();x.translate(gx,gy);x.rotate(-.45);
@@ -769,12 +828,46 @@ function seedPosts(){
       time:now-Math.floor((i+1)*(25+rnd()*160))*60000,comments:Array.from({length:Math.floor(rnd()*4)},()=>({u:pick(USERS).h,t:pick(CMTS)}))}});
 }
 const seeded=seedPosts();
+const CAPS={
+ cooking:[["okay let's cook","chop chop chop","into the pan it goes","done, you have to try it"],["quick lunch today","garlic first, always","a little more spice","so good, honestly"],["cooking with what's in my fridge","this might be weird","wait it's actually good","rate it one to ten"]],
+ baking:[["baking day","mixing the batter","into the oven","decorating time"],["cookie experiment","brown butter is the secret","chilling the dough","they came out perfect"],["birthday cake order","first layer of frosting","adding the berries","all done"]],
+ music:[["new song idea","just a little riff","here comes the chorus","tell me what you think"],["cover time","this one's a classic","harmony part","thanks for listening"],["late night practice","my fingers are tired","one more run","okay, last one"]],
+ gaming:[["new speedrun attempt","here's the tricky jump","clean","new record"],["playing your requests","this level is wild","coin streak","good game"],["chill stream","collecting everything","almost there","see you tomorrow"]],
+ skate:[["warm up session","pushing down the hill","trying the ollie","landed it"],["new spot today","the ledge is perfect","one more try","got it on camera"],["learning a manual","balance, balance","so close","next week for sure"]],
+ travel:[["road trip day","the views are unreal","snack stop next","almost at camp"],["driving the coast","windows down","sunset soon","best day ever"],["early start","coffee in hand","mountains ahead","see you at the top"]],
+ vlog:[["morning routine","making my bed first","outfit check","let's go"],["storytime","so this happened","I could not stop laughing","comment if this happened to you"],["room tour part two","my favorite corner","new fairy lights","what should I add next"],["what I got today","this was on sale","I'm obsessed with it","it's in my shop"]],
+ pets:[["park day","he saw the ball","zoomies","good boy"],["training update","sit","stay","treat time"],["he found a new friend","they're racing","so fast","nap time"]],
+ art:[["speedpaint","sky first","now the sun","finished"],["painting from memory","blending the clouds","adding warm colors","signed it"],["art class homework","base layer","details","done"]]};
+const FOODS="*";
+const GEN={
+ "maya.cooks":{v:["cooking",["15-minute fried rice that tastes like takeout","Tacos on a Tuesday, obviously","Garlic butter shrimp in one pan","My grandma's chicken soup","The crispiest potatoes ever","Lemon pasta for when you're tired","Breakfast burritos for the week","Spicy peanut noodles","Homemade pizza dough, no mixer","Cooking only with a microwave challenge"]],p:[["food",FOODS,["Dinner tonight","Meal prep done for the week","Fresh pasta, first try","Saturday brunch spread"]]],t:["What should I cook next week?","Kitchen is finally clean"]},
+ "jay.plays":{v:["music",["Wrote this on the bus home","Cover of a song you all requested","Practicing for Friday","New chorus, need opinions","Rainy day song","Trying fingerpicking","Song about my cat, part 2","Late night jam","Open mic recap","The first song I ever wrote"]],p:[["sunset",null,["Golden hour before the show","Walking home after practice"]]],t:["Friday open mic went so well, thank you everyone","Buying new strings tomorrow","What song should I cover next?"]},
+ "skatewithsam":{v:["skate",["Trying kickflips again","New board day","Skatepark at sunset","Ollie over three cones","Learning to drop in","Fail compilation, sorry mom","Cruising downtown","Manual practice","Crew session","Landed my first shove-it"]],p:[["sunset",null,["Best spot in town","After the session"]]],t:["Who's skating Saturday?","Wrist is fine, back at it tomorrow"]},
+ "lulu.bakes":{v:["baking",["Chewy chocolate chip cookies","Unicorn cake for my cousin","Cinnamon rolls at 6am","The lemon bars everyone asked for","Trying a croissant recipe","Cupcake decorating tips","Banana bread with no mixer","Rainbow layer cake","Strawberry shortcake","Bake sale prep"]],p:[["food","pancakes",["Sunday pancakes","Breakfast for the family"]]],t:["Taking cake orders for next month!"]},
+ "dex.games":{v:["gaming",["Speedrun attempt #N","Playing your level requests","Blind playthrough part NN","100% run, no deaths","Chill stream highlights","Beat my record by 2 seconds","The hardest level in the game","Trying the new update"]],p:[["setup",null,["New keyboard came in","Desk setup v3","Cable management finally done"]]],t:["Live tonight at 7!","What game should I speedrun next?"]},
+ "priya.travels":{v:["travel",["Road trip day NN","Driving through the canyons","Van life morning","Coast highway at sunset","Found a hidden lake","Camping under the stars","Mountain pass with no signal"]],p:[["sunset",null,["Golden hour stop","Beach day","Last light at camp"]],["food","pancakes",["Roadside diner pancakes"]]],t:["Where should we drive next?"]},
+ "nate.eats":{v:["cooking",["Can I cook better than a restaurant?","Copying my favorite dish at home"]],p:[["food",FOODS,["Rating this pizza: 8/10","Ramen spot downtown: 9/10","Best pasta in the city?","A salad that actually tastes good","Pancakes at the new cafe","Late night food run","Trying the viral noodles"]]],t:["Food review requests are open!"],photoFirst:true},
+ "ava.draws":{v:["art",["Speedpaint #N","Painting the view from my window","Art class homework","Sunset study","Trying a new brush","Mini painting challenge"]],p:[["plants",null,["Plant shelf update","New baby plant","Repotting day"]]],t:["Selling prints soon!"]},
+ "kofi.and.biscuit":{v:["pets",["Biscuit vs the ball, round NN","Biscuit learns to sit","First time at the beach","Zoomies at the park","Biscuit meets a squirrel","Fetch practice","Bath time (he hates it)"]],p:[["sunset",null,["Evening walk","Sunset with my best friend"]]],t:["Biscuit is 2 today!","He stole my sock again"]},
+ "zoe.vlogs":{v:["vlog",["Day in my life","Get ready with me","Storytime: worst haircut ever","Room makeover","What I got at the mall","Morning routine 2.0","Weekend vlog","Packing for vacation","Outfit ideas for school","Answering your questions"]],p:[["setup",null,["My new desk corner"]],["plants",null,["Plant shopping haul"]],["food",FOODS,["Lunch date"]]],t:["Q&A video tomorrow, ask me anything"]}};
+const TAGS={cooking:["Hot Sauce","Mug"],baking:["Cookie Box"],music:["Ukulele","Headphones","Speaker"],gaming:["Controller","Headphones","Keyboard"],skate:["Skateboard","Sneakers","Cap"],travel:["Instant Camera","Backpack","Water Bottle"],vlog:["Hoodie","Graphic Tee","Tote Bag","Candle"],pets:["Frisbee","Soccer Ball"],art:["Paint Set","Art Print"],plants:["Mini Plant"],setup:["Keyboard","Desk Lamp"],food:["Chips","Iced Coffee"],sunset:["Sunglasses"]};
+(function genPosts(){seed=4242;const now=Date.now();
+  USERS.forEach((u,ui)=>{const G2=GEN[u.h];let tm=now-36e5*(30+ui*3);
+    for(let i=0;i<30;i++){tm-=36e5*(14+rnd()*40);const r=rnd();let p;
+      const vidShare=G2.photoFirst?.25:.62;
+      if(r<vidShare){const [sc,titles]=G2.v;p={kind:"video",scene:sc,variant:null,text:titles[i%titles.length].replace("#N","#"+(i+2)).replace("NN",String(i+2)),caps:CAPS[sc][Math.floor(rnd()*CAPS[sc].length)]}}
+      else if(r<.92){const [sc,variant,titles]=G2.p[Math.floor(rnd()*G2.p.length)];p={kind:"photo",scene:sc,variant:variant==="*"?pick(["pizza","salad","ramen","pancakes","pasta"]):variant,text:titles[Math.floor(rnd()*titles.length)],caps:null}}
+      else p={kind:"text",scene:null,variant:null,text:G2.t[Math.floor(rnd()*G2.t.length)],caps:null};
+      const tg=p.scene&&TAGS[p.scene]&&rnd()<.45?byNoun(pick(TAGS[p.scene])):null;
+      seeded.push(Object.assign(p,{id:"g"+ui+"_"+i,user:u.h,product:tg?tg.id:null,likes:Math.floor(40+rnd()*u.followers*.05),views:Math.floor(500+rnd()*u.followers*1.2),time:tm,
+        comments:Array.from({length:Math.floor(rnd()*4)},()=>({u:pick(USERS).h,t:pick(CMTS)}))}))}});
+})();
 
 /* ---------- state ---------- */
 const DEFAULT_ME={h:"you",n:"You",bio:"Just here for the vlogs.",look:{skin:"#e0ac69",style:"short",hair:"#3b2314",shirt:"#2f4bff",glasses:false,bg:"#cfd8ff"},photo:null};
 const S={tab:"feed",me:store.get("me",DEFAULT_ME),mine:store.get("posts",[]),liked:store.get("liked",{}),follow:store.get("follow",{}),
   extra:store.get("cmts",{}),cart:store.get("cart",{}),orders:store.get("orders",[]),coins:store.get("coins",500),cat:"All",q:"",sort:"pop",topic:"For you",
-  chats:store.get("chats",null)||seedChats(),notifs:store.get("notifs",[]),nseen:store.get("nseen",0),fans:store.get("fans",0),seenStories:{},inboxSeg:"activity",editing:false};
+  muted:store.get("muted",false),chats:store.get("chats",null)||seedChats(),notifs:store.get("notifs",[]),nseen:store.get("nseen",0),fans:store.get("fans",0),seenStories:{},inboxSeg:"activity",editing:false};
 const seededNotifs=(()=>{const now=Date.now();return[
  {u:"zoe.vlogs",text:"started following you",time:now-36e5*2},
  {u:"lulu.bakes",text:"posted a new vlog: Strawberry cake for my sister's 10th birthday",time:now-36e5*5,pid:"s6"},
@@ -792,41 +885,103 @@ function avURL(u){if(u.photo)return u.photo;const L=u.look;return canvasURL("a"+
 const av=(u,cls)=>`<img class="av ${cls||""}" src="${avURL(u)}" alt="${esc(u.n)}">`;
 const sceneURL=p=>canvasURL("s"+p.id+(p.user===S.me.h?JSON.stringify(S.me.look):""),480,p.kind==="video"?600:480,x=>{const u=userOf(p.user)||S.me;const c=x.canvas;LM.SCENES[p.scene](x,c.width,c.height,1.1,u.look,p.id,p.variant)});
 
+/* ---------- sound: music, effects and voices ---------- */
+const AUD=(()=>{
+  let ctx=null,master=null,mus=null,sfx=null,timer=null,cur=null,nextT=0,step=0,lastCap=-1,nb=null,spoke=false,voices=[];
+  const hz=n=>440*Math.pow(2,(n-69)/12);
+  const CH={Cmaj7:[48,52,55,59],Am7:[45,48,52,55],Fmaj7:[41,45,48,52],G7:[43,47,50,53],G:[43,47,50,55],D:[38,45,50,54],Em:[40,47,52,55],C:[48,52,55,60],Dm7:[50,53,57,60]};
+  function unlock(){try{if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctx=new AC();master=ctx.createGain();master.gain.value=S.muted?0:.9;master.connect(ctx.destination);
+      mus=ctx.createGain();mus.gain.value=.5;mus.connect(master);sfx=ctx.createGain();sfx.gain.value=.7;sfx.connect(master);
+      const len=ctx.sampleRate*2;nb=ctx.createBuffer(1,len,ctx.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1}
+    if(ctx.state==="suspended")ctx.resume();
+    if(window.speechSynthesis&&!spoke){spoke=true;const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}}catch(e){}}
+  function tone(t,n,dur,type,vol,bus,cut,att){const o=ctx.createOscillator(),gn=ctx.createGain();o.type=type;o.frequency.value=hz(n);let nd=o;if(cut){const f=ctx.createBiquadFilter();f.type="lowpass";f.frequency.value=cut;o.connect(f);nd=f}
+    nd.connect(gn);gn.connect(bus||mus);gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(vol,t+(att||.01));gn.gain.exponentialRampToValueAtTime(.0001,t+dur);o.start(t);o.stop(t+dur+.05)}
+  function noise(t,dur,vol,type,freq,bus){const s=ctx.createBufferSource();s.buffer=nb;const f=ctx.createBiquadFilter();f.type=type;f.frequency.value=freq;const gn=ctx.createGain();s.connect(f);f.connect(gn);gn.connect(bus||mus);
+    gn.gain.setValueAtTime(vol,t);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);s.start(t,Math.random()*1.5);s.stop(t+dur+.05)}
+  function kick(t,vol){const o=ctx.createOscillator(),gn=ctx.createGain();o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);gn.gain.setValueAtTime(vol,t);gn.gain.exponentialRampToValueAtTime(.0001,t+.25);o.connect(gn);gn.connect(mus);o.start(t);o.stop(t+.3)}
+  function sweep(t,f0,f1,dur,vol,type){const o=ctx.createOscillator(),gn=ctx.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(vol,t+.01);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(gn);gn.connect(sfx);o.start(t);o.stop(t+dur+.05)}
+  function bark(t){[0,.18].forEach(dt=>{const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),gn=ctx.createGain();o.type="sawtooth";o.frequency.setValueAtTime(520,t+dt);o.frequency.exponentialRampToValueAtTime(280,t+dt+.11);f.type="lowpass";f.frequency.value=1400;
+    gn.gain.setValueAtTime(.0001,t+dt);gn.gain.exponentialRampToValueAtTime(.22,t+dt+.01);gn.gain.exponentialRampToValueAtTime(.0001,t+dt+.13);o.connect(f);f.connect(gn);gn.connect(sfx);o.start(t+dt);o.stop(t+dt+.2)})}
+  const GEN={
+    lofi:{bpm:78,prog:["Cmaj7","Am7","Fmaj7","G7"],play(t,st,ch,sd){const b=st%8;if(b===0){ch.forEach(n=>tone(t,n+12,sd*8,"triangle",.035,null,1600,.3));tone(t,ch[0]-12,sd*3,"sine",.22)}
+      if(b===0||b===5)kick(t,.45);if(b===4)noise(t,.18,.14,"bandpass",1800);noise(t,.04,b%2?.03:.06,"highpass",7000);if(b===2||b===6)tone(t,ch[(st>>1)%4]+24,sd*1.5,"triangle",.05,null,2500)}},
+    acoustic:{bpm:92,prog:["G","D","Em","C"],play(t,st,ch,sd){const arp=[0,1,2,3,2,1,2,3];tone(t,ch[arp[st%8]]+12,sd*3,"triangle",.1,null,3000);if(st%8===0)tone(t,ch[0]-12,sd*6,"sine",.18);if(st%8===4)noise(t,.06,.04,"highpass",5000)}},
+    chip:{bpm:140,prog:["C","Am7","Fmaj7","G"],play(t,st,ch,sd){tone(t,ch[st%4]+24,sd*.9,"square",.04);if(st%2===0)tone(t,ch[0],sd*1.8,"square",.035,null,1200);if(st%4===0)noise(t,.05,.08,"highpass",6000)}},
+    upbeat:{bpm:120,prog:["Em","C","G","D"],play(t,st,ch,sd){if(st%2===0)kick(t,.55);if(st%4===2)noise(t,.15,.2,"bandpass",2000);noise(t,.03,.05,"highpass",8000);tone(t,ch[0]-12+(st%2?12:0),sd*.9,"sawtooth",.06,null,700);if(st%8===0)ch.forEach(n=>tone(t,n+12,sd*2,"sawtooth",.02,null,2000))}},
+    road:{bpm:100,prog:["Dm7","G7","Cmaj7","Am7"],play(t,st,ch,sd){const b=st%8;if(b===0)ch.forEach(n=>tone(t,n+12,sd*8,"triangle",.035,null,1500,.3));if(st%4===0)kick(t,.38);if(b===4)noise(t,.12,.1,"bandpass",1500);if(st%2===0)tone(t,ch[0]-12,sd*1.8,"sine",.18);if(b===3||b===6)tone(t,ch[2]+24,sd,"triangle",.05,null,3000)}},
+    happy:{bpm:116,prog:["C","G","Am7","Fmaj7"],play(t,st,ch,sd){const arp=[0,2,1,2,3,2,1,2];tone(t,ch[arp[st%8]]+12,sd*1.2,"triangle",.09,null,3500);if(st%4===0)kick(t,.32);if(st%4===2)noise(t,.08,.13,"bandpass",1200);if(st%8===0)tone(t,ch[0]-12,sd*4,"sine",.16)}}};
+  const SND={cooking:["lofi","sizzle"],baking:["happy","kitchen"],music:["acoustic",null],gaming:["chip","coins"],skate:["upbeat","roll"],travel:["road","engine"],vlog:["lofi","room"],pets:["happy","park"],art:["lofi","brush"]};
+  function amb(kind,t,st,sd){const R=Math.random;switch(kind){
+    case"sizzle":noise(t,sd*1.3,.05+R()*.04,"bandpass",3500+R()*2500,sfx);if(R()<.6)noise(t+R()*sd,.025,.18,"highpass",5000,sfx);break;
+    case"kitchen":if(st%16===7)tone(t,96,.4,"sine",.05,sfx);if(st%8===3)noise(t,.25,.05,"bandpass",900,sfx);break;
+    case"coins":if(st%8===2){tone(t,88,.08,"square",.05,sfx);tone(t+.08,93,.3,"square",.05,sfx)}if(st%16===12)sweep(t,300,900,.25,.05,"square");break;
+    case"roll":noise(t,sd*1.2,.07,"lowpass",350,sfx);if(st%16===10)noise(t,.06,.35,"lowpass",900,sfx);break;
+    case"engine":noise(t,sd*1.2,.22,"lowpass",140,sfx);break;
+    case"room":if(R()<.05)sweep(t,2600,4200,.12,.03);break;
+    case"park":if(R()<.25)sweep(t,2500+R()*800,3800+R()*900,.08+R()*.06,.04);if(st%24===9)bark(t);noise(t,sd*1.1,.015,"highpass",3000,sfx);break;
+    case"brush":if(R()<.5)noise(t,.2+R()*.2,.05,"bandpass",1100+R()*600,sfx);break}}
+  function sched(){if(!cur||!ctx)return;const g=cur.g,sd=60/g.bpm/2;while(nextT<ctx.currentTime+.25){const ch=CH[g.prog[Math.floor(step/8)%g.prog.length]];try{g.play(nextT,step,ch,sd);amb(cur.amb,nextT,step,sd)}catch(e){}step++;nextT+=sd}}
+  function start(p){stop();unlock();if(!ctx||!p||!p.scene)return;const [gn,a]=SND[p.scene]||["lofi",null];cur={p,g:GEN[gn],amb:a};step=0;lastCap=-1;nextT=ctx.currentTime+.08;
+    mus.gain.cancelScheduledValues(ctx.currentTime);mus.gain.setValueAtTime(.5,ctx.currentTime);timer=setInterval(sched,60);sched()}
+  function stop(){if(timer){clearInterval(timer);timer=null}cur=null;lastCap=-1;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}}
+  const loadV=()=>{try{voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))}catch(e){}};
+  if(window.speechSynthesis){loadV();try{speechSynthesis.addEventListener("voiceschanged",loadV)}catch(e){}}
+  const VP={"maya.cooks":[1.15,1,"f"],"jay.plays":[.95,1,"m"],"skatewithsam":[1,1.08,"m"],"lulu.bakes":[1.25,1,"f"],"dex.games":[.9,1.1,"m"],"priya.travels":[1.1,.97,"f"],"nate.eats":[.95,1,"m"],"ava.draws":[1.2,.96,"f"],"kofi.and.biscuit":[.85,.96,"m"],"zoe.vlogs":[1.3,1.06,"f"]};
+  const FEM=/samantha|karen|moira|tessa|victoria|\bava\b|allison|susan|zira|serena|fiona|female|joanna|salli|kimberly|nicky|martha|catherine|aria|jenny|google us english|kathy|vicki|princess|flo|shelley|sandy|grandma/i;
+  const MAL=/daniel|alex|fred|\btom\b|aaron|arthur|david|mark|rishi|\bmale\b|guy|ryan|matthew|oliver|gordon|\blee\b|ralph|junior|eddy|reed|rocko|grandpa|uk english male/i;
+  function voiceFor(h){const v=VP[h]||[1,1,null];let pool=voices;if(v[2]==="f")pool=voices.filter(x=>FEM.test(x.name));else if(v[2]==="m")pool=voices.filter(x=>MAL.test(x.name)&&!FEM.test(x.name));
+    if(!pool.length)pool=voices;const hsh=[...h].reduce((a,c)=>a+c.charCodeAt(0),0);return{voice:pool.length?pool[hsh%pool.length]:null,pitch:v[0],rate:v[1]}}
+  function duck(on){if(!ctx||!mus)return;const t=ctx.currentTime;mus.gain.cancelScheduledValues(t);mus.gain.setTargetAtTime(on?.16:.5,t,.12)}
+  function say(p,i){if(!cur||cur.p.id!==p.id||i===lastCap)return;lastCap=i;if(S.muted||!window.speechSynthesis)return;
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(p.caps[i]);const vs=voiceFor(p.user);if(vs.voice)u.voice=vs.voice;u.lang=vs.voice?vs.voice.lang:"en-US";u.pitch=vs.pitch;u.rate=vs.rate;
+      duck(true);u.onend=u.onerror=()=>duck(false);speechSynthesis.speak(u)}catch(e){}}
+  function setMuted(m){S.muted=m;store.set("muted",m);if(ctx&&master)master.gain.setTargetAtTime(m?0:.9,ctx.currentTime,.05);if(m){try{speechSynthesis.cancel()}catch(e){}}else unlock();
+    document.querySelectorAll("[data-snd]").forEach(b=>{(b.querySelector(".ico")||b).innerHTML=sndIco()});toast(m?"Sound off":"Sound on")}
+  return{unlock,start,stop,say,setMuted};
+})();
+const sndIco=()=>S.muted?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19.5 5.5a9 9 0 0 1 0 13"/></svg>`;
+["pointerdown","touchend","click"].forEach(ev=>document.addEventListener(ev,()=>AUD.unlock(),{passive:true}));
 /* ---------- video playback ---------- */
 const playing=new Map();
 function frame(el,t){const p=allPosts().find(q=>q.id===el.dataset.pid);if(!p)return;const cv=el.querySelector("canvas"),x=cv.getContext("2d");const u=userOf(p.user)||S.me;
   LM.SCENES[p.scene](x,cv.width,cv.height,t,u.look,p.id,p.variant);
   if(p.caps&&p.caps.length)LM.caption(x,cv.width,cv.height,p.caps[Math.floor((t%8)/8*p.caps.length)]);}
 function mountVideo(el){const cv=el.querySelector("canvas");cv.width=480;cv.height=600;frame(el,1.1)}
-function stopAll(){playing.forEach((v,k)=>{cancelAnimationFrame(v.raf);const o=document.querySelector(`.media[data-pid="${k}"] .play`);if(o)o.hidden=false});playing.clear()}
+function stopAll(){playing.forEach((v,k)=>{cancelAnimationFrame(v.raf);const o=document.querySelector(`.media[data-pid="${k}"] .play`);if(o)o.hidden=false});playing.clear();AUD.stop()}
 function startLoop(el){const id=el.dataset.pid;stopAll();const bar=el.querySelector(".bar"),start=performance.now(),rec={raf:0};playing.set(id,rec);
-  const loop=now=>{const t=(now-start)/1000;if(!el.isConnected){playing.delete(id);return}frame(el,t%8);bar.style.width=((t%8)/8*100)+"%";rec.raf=requestAnimationFrame(loop)};rec.raf=requestAnimationFrame(loop)}
+  const post=allPosts().find(q=>q.id===id);AUD.start(post);
+  const loop=now=>{const t=(now-start)/1000;if(!el.isConnected){playing.delete(id);AUD.stop();return}frame(el,t%8);if(post&&post.caps)AUD.say(post,Math.floor((t%8)/8*post.caps.length));bar.style.width=((t%8)/8*100)+"%";rec.raf=requestAnimationFrame(loop)};rec.raf=requestAnimationFrame(loop)}
 function toggleVideo(el){const id=el.dataset.pid;
-  if(playing.has(id)){cancelAnimationFrame(playing.get(id).raf);playing.delete(id);el.querySelector(".play").hidden=false;return}
+  if(playing.has(id)){cancelAnimationFrame(playing.get(id).raf);playing.delete(id);AUD.stop();el.querySelector(".play").hidden=false;return}
   stopAll();el.querySelector(".play").hidden=true;
   const v=el.querySelector(".views");if(v&&!el.dataset.counted){el.dataset.counted=1;v.textContent=fmt(+v.dataset.n+1)+" views"}
   startLoop(el)}
 function playReel(el){stopAll();const pz=el.querySelector(".paused");if(pz)pz.hidden=true;startLoop(el)}
-function stopReel(el){const r=playing.get(el.dataset.pid);if(r){cancelAnimationFrame(r.raf);playing.delete(el.dataset.pid)}}
+function stopReel(el){const r=playing.get(el.dataset.pid);if(r){cancelAnimationFrame(r.raf);playing.delete(el.dataset.pid);AUD.stop()}}
 function heartBurst(el){el.insertAdjacentHTML("beforeend",`<svg class="burst" viewBox="0 0 24 24" aria-hidden="true"><path stroke-width="1.5" d="M12 20s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg>`);const b=el.lastElementChild;setTimeout(()=>b.remove(),900)}
 function tapMedia(el,single){if(el._tap){clearTimeout(el._tap);el._tap=null;const id=el.dataset.pid||el.closest(".post").dataset.id;heartBurst(el);if(!S.liked[id])setLike(id,true)}
   else el._tap=setTimeout(()=>{el._tap=null;single()},240)}
 function setLike(id,on){if(on)S.liked[id]=1;else delete S.liked[id];save();const p=allPosts().find(x=>x.id===id);document.querySelectorAll(`[data-like="${id}"]`).forEach(b=>{b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.querySelector("span:last-child").textContent=fmt(p.likes+(on?1:0))})}
 function setFollow(h,on){if(on)S.follow[h]=1;else delete S.follow[h];save();document.querySelectorAll(`[data-follow="${h}"]`).forEach(b=>{b.textContent=on?"Following":"Follow";b.classList.toggle("on",on)});toast(on?`Following @${h}`:`Unfollowed @${h}`)}
-let reelObs=null;const RW=450,RH=800;
+let reelObs=null,feedObs=null,reelFn=null;const RW=450,RH=800;
+const thumbURL=p=>p.img||canvasURL("t"+p.id+(p.user===S.me.h?JSON.stringify(S.me.look):""),192,240,x=>{const u=userOf(p.user)||S.me;x.scale(192/480,240/600);LM.SCENES[p.scene](x,480,600,1.1,u.look,p.id,p.variant)});
 function renderReels(){
   const vids=allPosts().filter(p=>p.kind==="video").sort((a,b)=>(b.user===S.me.h)-(a.user===S.me.h)||b.views-a.views);
-  view.innerHTML=`<div class="reels" id="reels">${vids.map(p=>{const u=userOf(p.user)||S.me;const liked=!!S.liked[p.id];const cm=(p.comments||[]).length+(S.extra[p.id]||[]).length;const prod=p.product?P(p.product):null;
+  view.innerHTML=`<div class="reels" id="reels">${vids.slice(0,10).map(reelFn=p=>{const u=userOf(p.user)||S.me;const liked=!!S.liked[p.id];const cm=(p.comments||[]).length+(S.extra[p.id]||[]).length;const prod=p.product?P(p.product):null;
     return`<div class="reel" data-pid="${p.id}"><canvas aria-label="${esc(u.n)}'s video"></canvas><span class="shade"></span><span class="paused" hidden>${playIco}</span><span class="bar"></span>
     <div class="info"><div class="urow"><button type="button" class="u" data-user="${esc(u.h)}">${av(u,"sm")}<span>${esc(u.h)}${vf(u)}</span></button>${p.user!==S.me.h&&!S.follow[p.user]?`<button type="button" class="followbtn" data-follow="${esc(u.h)}">Follow</button>`:""}</div>
     ${p.text?`<p>${esc(p.text)}</p>`:""}<div class="audio"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 18a3 3 0 1 1-2-2.8V5l12-2v11a3 3 0 1 1-2-2.8V6.4L9 7.7z"/></svg>Original audio · ${esc(u.h)}</div></div>
     <div class="side"><button type="button" class="${liked?"on":""}" data-like="${p.id}" aria-pressed="${liked}"><span class="ico">${heart}</span><span>${fmt(p.likes+(liked?1:0))}</span></button>
     <button type="button" data-cm="${p.id}"><span class="ico">${bubble}</span><span>${cm}</span></button>
     <button type="button" data-share="${p.id}"><span class="ico">${share}</span>Share</button>
+    <button type="button" data-snd aria-label="Turn sound on or off"><span class="ico">${sndIco()}</span>Sound</button>
     ${prod?`<button type="button" data-prod="${prod.id}" aria-label="Shop ${esc(prod.name)}"><img src="${pimg(prod)}" alt="">Shop</button>`:""}</div></div>`}).join("")}</div>`;
   const box=$("#reels");box.querySelectorAll(".reel").forEach(el=>{const c=el.querySelector("canvas");c.width=RW;c.height=RH;frame(el,1.1)});
   if(reelObs)reelObs.disconnect();
-  reelObs=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting&&en.intersectionRatio>=.6)playReel(en.target);else stopReel(en.target)}),{root:box,threshold:[.6]});
+  let shown=10;const addMore=()=>{if(shown>=vids.length)return;const nx=vids.slice(shown,shown+10);shown+=nx.length;const tmp=document.createElement("div");tmp.innerHTML=nx.map(reelFn).join("");
+    [...tmp.children].forEach(el=>{box.appendChild(el);const c=el.querySelector("canvas");c.width=RW;c.height=RH;frame(el,1.1);reelObs.observe(el)})};
+  reelObs=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting&&en.intersectionRatio>=.6){playReel(en.target);if(en.target.nextElementSibling===null||en.target.nextElementSibling.nextElementSibling===null)addMore()}else stopReel(en.target)}),{root:box,threshold:[.6]});
   box.querySelectorAll(".reel").forEach(el=>reelObs.observe(el));
 }
 
@@ -862,9 +1017,13 @@ function renderFeed(){
      ${draft.kind==="video"?`<div class="hint">You'll star in the vlog. Each sentence you write becomes a caption.</div>`:""}
    </form>
    <div class="topics">${topics.map(t=>`<button type="button" class="chip" data-topic="${t}" aria-pressed="${S.topic===t}">${t}</button>`).join("")}</div>
-   <div class="feed">${list.map(postHTML).join("")||`<p class="empty">${S.topic==="Following"?"Follow some creators to see their posts here. Tap a name or a story to visit a profile.":"Nothing here yet."}</p>`}</div>
+   <div class="feed" id="feedlist">${list.slice(0,20).map(postHTML).join("")||`<p class="empty">${S.topic==="Following"?"Follow some creators to see their posts here. Tap a name or a story to visit a profile.":"Nothing here yet."}</p>`}</div>
+   ${list.length>20?`<div id="more" class="note">Loading more posts…</div>`:""}
    <p class="note">Your posts are saved on this phone.</p></section>`;
   view.querySelectorAll(".media.video").forEach(mountVideo);
+  if(feedObs)feedObs.disconnect();let shown=20;const more=$("#more");
+  if(more){feedObs=new IntersectionObserver(es=>{if(!es[0].isIntersecting)return;const nx=list.slice(shown,shown+15);shown+=nx.length;const box=$("#feedlist"),tmp=document.createElement("div");tmp.innerHTML=nx.map(postHTML).join("");
+    [...tmp.children].forEach(c=>{box.appendChild(c);c.querySelectorAll(".media.video").forEach(mountVideo)});if(shown>=list.length){feedObs.disconnect();more.remove()}},{rootMargin:"800px"});feedObs.observe(more)}
   const ta=$("#ctext");ta.oninput=()=>{draft.text=ta.value;syncPost()};syncPost();
   $("#cfile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>shrink(r.result,900,img=>{draft.img=img;draft.kind="photo";renderFeed()});r.readAsDataURL(f)};
   $("#cvid").onclick=()=>{draft.kind=draft.kind==="video"?(draft.img?"photo":"text"):"video";renderFeed()};
@@ -883,7 +1042,7 @@ function syncPost(){const b=$("#cpost");if(b)b.disabled=!canPost()}
 function shrink(src,max,cb){const im=new Image();im.onload=()=>{const sc=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement("canvas");c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext("2d").drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.8))};im.src=src}
 
 function mediaHTML(p,u){
-  if(p.kind==="video")return`<div class="media video" data-pid="${p.id}"><canvas aria-label="${esc(u.n)}'s video"></canvas><span class="tag">VIDEO · 0:08</span><span class="views" data-n="${p.views}">${fmt(p.views)} views</span><button type="button" class="play" aria-label="Play video">${playIco}</button><span class="bar"></span></div>`;
+  if(p.kind==="video")return`<div class="media video" data-pid="${p.id}"><canvas aria-label="${esc(u.n)}'s video"></canvas><span class="tag">VIDEO · 0:08</span><span class="views" data-n="${p.views}">${fmt(p.views)} views</span><button type="button" class="play" aria-label="Play video">${playIco}</button><button type="button" class="snd" data-snd aria-label="Turn sound on or off">${sndIco()}</button><span class="bar"></span></div>`;
   if(p.kind==="photo"&&p.img)return`<div class="media square"><img src="${p.img}" alt="Photo by ${esc(u.n)}"></div>`;
   if(p.kind==="photo"&&p.scene)return`<div class="media square"><img src="${sceneURL(p)}" alt="Photo by ${esc(u.n)}"></div>`;
   return"";
@@ -977,9 +1136,9 @@ function profileHTML(u,posts,isMe,tab,extra){
   ${isMe?"":`<div class="mutual"><span class="stack">${mutual.map(m=>av(m,"xs")).join("")}</span><span>Followed by <b>${esc(mutual[0].h)}</b>, <b>${esc(mutual[1].h)}</b> and ${Math.floor(u.followers/1900)+3} others</span></div>`}
   <div class="btnrow">${isMe?`<button type="button" class="btn ghost" id="editp">${S.editing?"Done editing":"Edit profile"}</button><button type="button" class="btn ghost" id="sharep">Share profile</button>`:`<button type="button" class="btn ${S.follow[u.h]?"ghost":""}" id="fol">${S.follow[u.h]?"Following":"Follow"}</button><button type="button" class="btn ghost" id="msg">Message</button>`}</div>
   ${extra||""}
-  <div class="hls">${(isMe?["New"]:p.hl).map((h,i)=>{const q=pics.length?pics[i%pics.length]:null;const src=q&&!isMe?(q.img||sceneURL(q)):"";return`<button type="button" class="hl" ${isMe?"data-compose":`data-story-user="${esc(u.h)}"`}><span class="hlc">${src?`<img src="${src}" alt="">`:`<span class="plus">+</span>`}</span><span>${esc(h)}</span></button>`}).join("")}</div>
+  <div class="hls">${(isMe?["New"]:p.hl).map((h,i)=>{const q=pics.length?pics[i%pics.length]:null;const src=q&&!isMe?thumbURL(q):"";return`<button type="button" class="hl" ${isMe?"data-compose":`data-story-user="${esc(u.h)}"`}><span class="hlc">${src?`<img src="${src}" alt="">`:`<span class="plus">+</span>`}</span><span>${esc(h)}</span></button>`}).join("")}</div>
   <div class="ptabs"><button type="button" data-ptab="posts" aria-pressed="${tab!=="reels"}" aria-label="Posts">${gridIco}</button><button type="button" data-ptab="reels" aria-pressed="${tab==="reels"}" aria-label="Reels">${reelIco}</button></div>
-  ${shown.length?`<div class="thumbs">${shown.map(x=>`<button type="button" data-open-post="${x.id}" aria-label="Open post">${x.img?`<img src="${x.img}" alt="">`:x.scene?`<img src="${sceneURL(x)}" alt="">${x.kind==="video"?`<span class="ic">${playIco}</span><span class="vc">${fmt(x.views)}</span>`:""}`:`<span class="txt">${esc(x.text)}</span>`}</button>`).join("")}</div>`:`<p class="empty">${isMe?"Share your first post from the Home tab.":"No reels yet."}</p>`}</div>`;
+  ${shown.length?`<div class="thumbs">${shown.map(x=>`<button type="button" data-open-post="${x.id}" aria-label="Open post">${x.img?`<img src="${x.img}" alt="">`:x.scene?`<img src="${thumbURL(x)}" alt="" loading="lazy">${x.kind==="video"?`<span class="ic">${playIco}</span><span class="vc">${fmt(x.views)}</span>`:""}`:`<span class="txt">${esc(x.text)}</span>`}</button>`).join("")}</div>`:`<p class="empty">${isMe?"Share your first post from the Home tab.":"No reels yet."}</p>`}</div>`;
 }
 function openUser(h){
   if(h===S.me.h){go("me");return}
@@ -1016,7 +1175,7 @@ function updateDot(){const b=document.querySelector('nav.tabs [data-tab="inbox"]
 function renderInbox(){
   const seg=S.inboxSeg,unreadChats=Object.values(S.chats).filter(c=>c.unread).length;let body="";
   if(seg==="activity"){const list=[...S.notifs,...seededNotifs].sort((a,b)=>b.time-a.time);
-    body=list.map(n=>{const u=n.u?userOf(n.u):null;const p=n.pid?allPosts().find(x=>x.id===n.pid):null;const th=p?(p.img||(p.scene?sceneURL(p):"")):"";
+    body=list.map(n=>{const u=n.u?userOf(n.u):null;const p=n.pid?allPosts().find(x=>x.id===n.pid):null;const th=p?(p.img||(p.scene?thumbURL(p):"")):"";
       return`<button type="button" class="irow ${n.time>S.nseen?"unread":""}" data-n-post="${p?p.id:""}" data-n-user="${u?esc(u.h):""}">${u?av(u,"sm"):`<span class="av sm" style="display:grid;place-items:center;background:var(--honey);color:var(--accent-deep)">${bagIco}</span>`}<span class="t"><div class="l1">${u?`<b>${esc(u.h)}</b> `:""}${esc(n.text.replace("{me}","@"+S.me.h))}</div><div class="l2">${ago(n.time)}</div></span>${th?`<img class="thumb" src="${th}" alt="">`:""}</button>`}).join("");
     S.nseen=Date.now();save();setTimeout(updateDot,0)}
   else{const has=USERS.filter(u=>S.chats[u.h]&&S.chats[u.h].msgs.length).sort((a,b)=>S.chats[b.h].msgs.at(-1).time-S.chats[a.h].msgs.at(-1).time);const rest=USERS.filter(u=>!has.includes(u));
@@ -1109,6 +1268,7 @@ function renderMe(){
 const view=$("#view");
 function feedClicks(e){
   const t=e.target;
+  const sn=t.closest("[data-snd]");if(sn){AUD.setMuted(!S.muted);return true}
   const rl=t.closest(".reel");if(rl&&!t.closest("button,form,input")){tapMedia(rl,()=>{if(playing.has(rl.dataset.pid)){stopReel(rl);rl.querySelector(".paused").hidden=false}else playReel(rl)});return true}
   const md=t.closest(".media");if(md){tapMedia(md,()=>{if(md.classList.contains("video"))toggleVideo(md)});return true}
   const like=t.closest("[data-like]");if(like){setLike(like.dataset.like,!S.liked[like.dataset.like]);return true}
@@ -1140,7 +1300,7 @@ view.addEventListener("click",e=>{
 });
 view.addEventListener("submit",commentSubmit);
 
-function go(tab){stopAll();if(reelObs){reelObs.disconnect();reelObs=null}S.tab=tab;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===tab?"page":"false"));
+function go(tab){stopAll();if(reelObs){reelObs.disconnect();reelObs=null}if(feedObs){feedObs.disconnect();feedObs=null}S.tab=tab;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===tab?"page":"false"));
   ({feed:renderFeed,reels:renderReels,shop:renderShop,cart:renderCart,inbox:renderInbox,me:renderMe})[tab]();window.scrollTo({top:0})}
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>go(b.dataset.tab));
 $("#topCart").onclick=()=>go("cart");
